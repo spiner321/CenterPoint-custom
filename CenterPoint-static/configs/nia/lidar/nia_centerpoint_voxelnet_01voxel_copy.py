@@ -169,7 +169,7 @@ test_pipeline = [
 ]
 
 train_anno = data_root + "/infos_train_filter_True_lidar.pkl"
-val_anno = data_root + "/infos_test_normal_filter_True_lidar.pkl"
+val_anno = data_root + "/infos_test_abnormal_filter_True_lidar.pkl"
 # val_anno = "/workspace/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_lidar.pkl" # extreme
 test_anno = None
 

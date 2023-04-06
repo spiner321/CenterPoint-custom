@@ -4,7 +4,8 @@
 import json
 import os
 
-from nuscenes.eval.detection.data_classes import DetectionConfig
+# from nuscenes.eval.detection.data_classes import DetectionConfig
+from .data_classes import DetectionConfig
 
 
 def config_factory(configuration_name: str) -> DetectionConfig:
@@ -24,6 +25,13 @@ def config_factory(configuration_name: str) -> DetectionConfig:
     # Load config file and deserialize it.
     with open(cfg_path, 'r') as f:
         data = json.load(f)
+
+    # print('-----------------------------------------------')
+    # print(data)
+    # print('-----------------------------------------------')
+
+
     cfg = DetectionConfig.deserialize(data)
 
     return cfg
+    # return data

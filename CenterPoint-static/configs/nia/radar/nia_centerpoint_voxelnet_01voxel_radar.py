@@ -4,11 +4,11 @@ import logging
 from det3d.utils.config_tool import get_downsample_factor
 
 tasks = [
-    dict(num_class=1, class_names=["car"]),
-    dict(num_class=2, class_names=["truck", "construction_vehicle"]),
-    dict(num_class=1, class_names=["bus"]),
-    dict(num_class=2, class_names=["motorcycle", "bicycle"]),
-    dict(num_class=1, class_names=["pedestrian"]),
+    dict(num_class=1, class_names=["median_strip"]),
+    dict(num_class=2, class_names=["road_sign", "ramp_sect"]),
+    dict(num_class=1, class_names=["sound_barrier"]),
+    dict(num_class=2, class_names=["overpass", "tunnel"]),
+    dict(num_class=1, class_names=["street_trees"]),
 ]
 
 class_names = list(itertools.chain(*[t["class_names"] for t in tasks]))
@@ -24,10 +24,10 @@ model = dict(
     pretrained=None,
     reader=dict(
         type="VoxelFeatureExtractorV3",
-        num_input_features=5, #4
+        num_input_features=4,
     ),
     backbone=dict(
-        type="SpMiddleResNetFHD", num_input_features=5, ds_factor=8
+        type="SpMiddleResNetFHD", num_input_features=4, ds_factor=8
     ),
     neck=dict(
         type="RPN",
@@ -80,32 +80,31 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/path/to/CenterPoint-NIA/data/nia" #"/path/to/CenterPoint-NIA/data/nia"
+data_root = "/workspace/CenterPoint-NIA/data/nia"
 
 db_sampler = dict(
     type="GT-AUG",
     enable=False,
-    db_info_path= data_root + "/dbinfos_train_radar.pkl",
-    #"/path/to/CenterPoint-NIA/data/nia/dbinfos_train_radar.pkl"
+    db_info_path="/workspace/CenterPoint-NIA/data/nia/dbinfos_train_radar.pkl",
     sample_groups=[
-        dict(car=5),
-        dict(truck=3),
-        # dict(construction_vehicle=7),
-        dict(bus=3),
-        # dict(motorcycle=2),
-        dict(bicycle=6),
-        dict(pedestrian=4),
+        dict(median_strip=3),
+        dict(road_sign=3),
+        # dict(ramp_sect=7),
+        dict(sound_barrier=3),
+        # dict(overpass=2),
+        dict(tunnel=6),
+        dict(street_trees=4),
     ],
     db_prep_steps=[
         dict(
             filter_by_min_num_points=dict(
-                car=10,
-                truck=10,
-                bus=10,
-                construction_vehicle=10,
-                motorcycle=3,
-                bicycle=3,
-                pedestrian=3,
+                median_strip=1,
+                road_sign=1,
+                sound_barrier=1,
+                ramp_sect=3,
+                overpass=3,
+                tunnel=1,
+                street_trees=1,
             )
         ),
         dict(filter_by_difficulty=[-1],),
@@ -152,15 +151,14 @@ test_pipeline = [
     dict(type="Reformat"),
 ]
 
-train_anno = data_root + "/infos_train_filter_True_radar.pkl"
-val_anno = data_root + "/infos_val_filter_True_radar.pkl"
-# val_anno = data_root + "/infos_extreme_val_filter_True_radar.pkl"
-
+train_anno = "/workspace/CenterPoint-NIA/data/nia/infos_train_filter_True_radar.pkl"
+val_anno = "/workspace/CenterPoint-NIA/data/nia/infos_val_filter_True_radar.pkl"
+# val_anno = "/workspace/data/nia/infos_extreme_val_filter_True_radar.pkl"
 test_anno = None
 
 data = dict(
-    samples_per_gpu=8, #8,
-    workers_per_gpu=4,
+    samples_per_gpu=8,
+    workers_per_gpu=8,
     train=dict(
         type=dataset_type,
         root_path=data_root,
@@ -213,8 +211,8 @@ log_config = dict(
 )
 # yapf:enable
 # runtime settings
-total_epochs = 10
-device_ids = range(4)
+total_epochs = 5
+device_ids = range(8)
 dist_params = dict(backend="nccl", init_method="env://")
 log_level = "INFO"
 work_dir = './work_dirs/{}/'.format(__file__[__file__.rfind('/') + 1:-3])

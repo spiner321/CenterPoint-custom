@@ -2,6 +2,7 @@ import numpy as np
 import pickle
 import os
 import json
+import glob
 from pathlib import Path
 from functools import reduce
 from typing import List
@@ -643,33 +644,19 @@ def _fill_infos(root_path, frames, sensor='lidar'):
         if sensor == 'lidar':
             lidar_path = os.path.join(root_path, frame_name)
         elif sensor == 'radar':
-            radar_path = frame_name.split('/')
-            radar_path[3] = 'Radar/RadarFront'
-            radar_path[4] = radar_path[4][:12] + 'RF' + radar_path[4][14:]
-            radar_path = '/'.join(radar_path)
-            lidar_path = os.path.join(root_path, radar_path)
+            radar_frame_name = frame_name.replace('Lidar', 'Radar/RadarFront').replace('LR', 'RF')
+            radar_path = os.path.join(root_path, radar_frame_name)
+            lidar_path = radar_path
 
         ''' Annotation path '''
-        ref_path = frame_name.split('/')
-        ref_path[1] = 'label'
-        ref_path[3] = 'result'
-        ref_path[4] = ref_path[4][:12] + 'FC' + ref_path[4][14:-4] + '.json'
-        ref_path = '/'.join(ref_path)
-        ref_path = os.path.join(root_path, ref_path)
+        ref_path = frame_name.replace('source', 'label').replace('Lidar', 'result').replace('LR', 'FC').replace('.pcd', '.json')
 
         ''' Image path '''
-        cam_path = frame_name.split('/')
-        cam_path[3] = 'Camera/CameraFront/blur'
-        cam_path[4] = cam_path[4][:12] + 'CF' + cam_path[4][14:-4] + '.png'
-        cam_path = '/'.join(cam_path)
-        cam_path = os.path.join(root_path, cam_path)
+        cam_path = frame_name.replace('Lidar', 'Camera/CameraFront/blur').replace('LR', 'CF').replace('.pcd', '.png')
 
-        ''' Calib path '''
-        calib_path = frame_name.split('/')
-        calib_path[3] = 'calib/Lidar_radar_calib'
-        calib_path[4] = calib_path[4][:12] + 'LRC_RF.txt'
-        calib_path = '/'.join(calib_path)
-        calib_path = os.path.join(root_path, calib_path)
+        ''' Calibration path '''
+        scene_path = '/'.join(frame_name.split('/')[:-2])
+        calib_path = glob.glob(f'{scene_path}/calib/Lidar_radar_calib/*.txt')[0]
 
         assert os.path.exists(lidar_path), f"Cannot find path: {lidar_path}"
         assert os.path.exists(ref_path), f"Cannot find path: {ref_path}"
@@ -677,29 +664,25 @@ def _fill_infos(root_path, frames, sensor='lidar'):
         assert os.path.exists(calib_path), f"Cannot find path: {calib_path}"
 
         ref_obj = get_obj(ref_path)
-        # ref_time = 1e-6 * int(ref_obj['frame_name'].split("_")[-1])
-        # ref_pose = np.reshape(ref_obj['veh_to_global'], [4, 4])
-        # _, ref_from_global = veh_pos_to_transform(ref_pose)
 
         info = {
-            "lidar_path": lidar_path,
-            "cam_front_path": cam_path,
-            "anno_path": ref_path,
-            "calib_path": calib_path,
-            # "cam_intrinsic": ref_cam_intrinsic,
-            "token": frame_name[:-4], #sample["token"],
-            "sweeps": [],
-            # "ref_from_car": ref_from_car,
-            # "car_from_global": car_from_global,
-            # "timestamp": ref_time,
-            # "all_cams_from_lidar": all_cams_from_lidar,
-            # "all_cams_intrinsic": all_cams_intrinsic,
-            # "all_cams_path": all_cams_path
+        "lidar_path": lidar_path,
+        "cam_front_path": cam_path,
+        "anno_path": ref_path,
+        "calib_path": calib_path,
+        # "cam_intrinsic": ref_cam_intrinsic,
+        "token": frame_name[:-4], #sample["token"],
+        "sweeps": [],
+        # "ref_from_car": ref_from_car,
+        # "car_from_global": car_from_global,
+        # "timestamp": ref_time,
+        # "all_cams_from_lidar": all_cams_from_lidar,
+        # "all_cams_intrinsic": all_cams_intrinsic,
+        # "all_cams_path": all_cams_path
         }
 
-        # if not test
         annotations = ref_obj['annotation']
-        if sensor is 'radar':
+        if sensor == 'radar':
             remove_idx = []
             for idx, ann in enumerate(annotations):
                 if ann['3d_box'][0]['radar_point_count'] < 3:
@@ -735,45 +718,48 @@ def _fill_infos(root_path, frames, sensor='lidar'):
         info["gt_boxes_token"] = tokens
 
         infos.append(info)
+
     return infos
 
+
 def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=1):
-    root_path = Path(root_path)
-    normal_path = os.path.join(root_path, 'normal')
-    extreme_path = os.path.join(root_path, 'abnormal')
+    # root_path = Path(root_path)
+    # normal_path = os.path.join(root_path, 'normal')
+    # extreme_path = os.path.join(root_path, 'abnormal')
 
     ''' Get Scenes and divide into train/val set '''
-    train_scenes, val_scenes, test_scenes = get_available_scenes(normal_path, ratio=ratio)
+    # train_scenes, val_scenes, test_scenes = get_available_scenes(normal_path, ratio=ratio)
+    train_frames = sorted(glob.glob(f'{root_path}/train/source/*/*/*/Lidar/*'))
+    val_frames = sorted(glob.glob(f'{root_path}/val/source/*/*/*/Lidar/*'))
 
-    train_frames = get_available_frames(normal_path, train_scenes, subsample=subsample)
-    val_frames = get_available_frames(normal_path, val_scenes, subsample=subsample)
-    print("exist train frames:", len(train_frames), "exist val frames:", len(val_frames))
-    train_infos = _fill_infos(normal_path, train_frames, sensor)
-    val_infos = _fill_infos(normal_path, val_frames, sensor)
+    test_normal_frames = sorted(glob.glob(f'{root_path}/test/source/normal/*/*/Lidar/*'))
+    test_abnormal_frames = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*/Lidar/*'))
 
+    # train_frames = get_available_frames(normal_path, train_scenes, subsample=subsample)
+    # val_frames = get_available_frames(normal_path, val_scenes, subsample=subsample)
+    print("exist train frames:", len(train_frames), \
+          "exist val frames:", len(val_frames), \
+          "exist test_nomal frames:", len(test_normal_frames), \
+          "exist test_abnormal frames:", len(test_abnormal_frames))
 
-    ''' Do the same for the abnormal environment (extreme) '''
-    # extreme_train_scenes, extreme_val_scenes, extreme_test_scenes = get_available_scenes(extreme_path, ratio=ratio)
+    train_infos = _fill_infos(root_path, train_frames, sensor)
+    val_infos = _fill_infos(root_path, val_frames, sensor)
 
-    # extreme_train_frames = get_available_frames(extreme_path, extreme_train_scenes, subsample=subsample)
-    # extreme_val_frames = get_available_frames(extreme_path, extreme_test_scenes, subsample=subsample)
-    # print("exist train(abnormal) frames:", len(extreme_train_frames), "exist val(abnormal) frames:", len(extreme_val_frames))
-    # train_infos.extend(_fill_infos(extreme_path, extreme_train_frames, sensor))
-    # extreme_val_infos = _fill_infos(extreme_path, extreme_val_frames, sensor)
+    test_normal_infos = _fill_infos(root_path, test_normal_frames, sensor)
+    test_abnormal_infos = _fill_infos(root_path, test_abnormal_frames, sensor)
 
-
-    with open(
-            root_path / "infos_train_filter_{}_{}.pkl".format(filter_zero, sensor), "wb"
-    ) as f:
+    # filter_zero = str(filter_zero)
+    root_path = Path(root_path)
+    
+    with open(root_path / "infos_train_filter_{}_{}.pkl".format(filter_zero, sensor), "wb") as f:
         pickle.dump(train_infos, f)
-    with open(
-            root_path / "infos_val_filter_{}_{}.pkl".format(filter_zero, sensor), "wb"
-    ) as f:
+    with open(root_path / "infos_val_filter_{}_{}.pkl".format(filter_zero, sensor), "wb") as f:
         pickle.dump(val_infos, f)
-    # with open(
-    #         root_path / "infos_extreme_val_filter_{}_{}.pkl".format(filter_zero, sensor), "wb"
-    # ) as f:
-    #     pickle.dump(extreme_val_infos, f)
+
+    with open(root_path / "infos_test_normal_filter_{}_{}.pkl".format(filter_zero, sensor), "wb") as f:
+        pickle.dump(test_normal_infos, f)
+    with open(root_path / "infos_test_abnormal_filter_{}_{}.pkl".format(filter_zero, sensor), "wb") as f:
+        pickle.dump(test_abnormal_infos, f)
 
 
 def eval_main(nusc, eval_version, res_path, eval_set, output_dir):
