@@ -41,6 +41,7 @@ class VoxelNet(SingleStageDetector):
                 batch_size=len(data['points']),
                 input_shape=data["shape"][0],
             )
+            
             input_features = self.reader(data["features"], data['num_voxels'])
 
         x, voxel_feature = self.backbone(

@@ -61,7 +61,7 @@ def read_file(path, tries=2, num_point_feature=4, virtual=False, calib=''):
             intensity = intensity * 0.01
             positions = np.concatenate((positions, np.ones((1, positions.shape[1]))))
             positions = np.matmul(R2L_transform, positions).transpose(1, 0)
-            points = np.concatenate((positions, intensity, curvature), axis=1).astype(np.float32)
+            points = np.concatenate((positions, intensity), axis=1).astype(np.float32)
 
         # if 'Radar' in path:
         #     with open(calib, "r") as f:
@@ -69,7 +69,6 @@ def read_file(path, tries=2, num_point_feature=4, virtual=False, calib=''):
         #         angles = [float(a) for a in lines[4].split(',')]
         #         trans = np.array([float(a) for a in lines[6].split(',')]).reshape(3, 1)
         #         projection = [float(a) for a in lines[8].split(',')]
-
     return points
 
 
