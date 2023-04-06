@@ -8,7 +8,7 @@ import numpy as np
 
 from nuscenes.eval.common.data_classes import MetricData, EvalBox
 from nuscenes.eval.common.utils import center_distance
-from nuscenes.eval.detection.constants import DETECTION_NAMES, ATTRIBUTE_NAMES, TP_METRICS
+from .constants import DETECTION_NAMES, ATTRIBUTE_NAMES, TP_METRICS
 
 
 class DetectionConfig:
@@ -60,6 +60,11 @@ class DetectionConfig:
     @classmethod
     def deserialize(cls, content: dict):
         """ Initialize from serialized dictionary. """
+
+        # print('-----------------------------------------------')
+        # print(content)
+        # print('-----------------------------------------------')
+
         return cls(content['class_range'],
                    content['dist_fcn'],
                    content['dist_ths'],

@@ -438,7 +438,7 @@ class NIADataset(PointCloudDataset):
     #     return results, dt_annos
 
     ''' NUSCENES EVAL '''
-    def evaluation(self, detections, output_dir=None, testset=False):
+    def evaluation(self, detections, anno_path, output_dir=None, testset=False):
         from nuscenes.eval.detection.evaluate import DetectionEval
         version = self.version
         eval_set_map = {
@@ -546,6 +546,7 @@ class NIADataset(PointCloudDataset):
                 res_path,
                 eval_set_map[self.version],
                 output_dir,
+                anno_path
             )
 
             with open(Path(output_dir) / "metrics_summary.json", "r") as f:

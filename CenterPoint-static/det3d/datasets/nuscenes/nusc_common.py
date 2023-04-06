@@ -30,21 +30,21 @@ except:
 #     print("nuScenes devkit not Found!")
 
 general_to_detection = {
-    "human.pedestrian.adult": "pedestrian",
-    "human.pedestrian.child": "pedestrian",
+    "human.pedestrian.adult": "street_trees",
+    "human.pedestrian.child": "street_trees",
     "human.pedestrian.wheelchair": "ignore",
     "human.pedestrian.stroller": "ignore",
     "human.pedestrian.personal_mobility": "ignore",
-    "human.pedestrian.police_officer": "pedestrian",
-    "human.pedestrian.construction_worker": "pedestrian",
+    "human.pedestrian.police_officer": "street_trees",
+    "human.pedestrian.construction_worker": "street_trees",
     "animal": "ignore",
-    "vehicle.car": "car",
-    "vehicle.motorcycle": "motorcycle",
-    "vehicle.bicycle": "bicycle",
-    "vehicle.bus.bendy": "bus",
-    "vehicle.bus.rigid": "bus",
-    "vehicle.truck": "truck",
-    "vehicle.construction": "construction_vehicle",
+    "vehicle.car": "median_strip",
+    "vehicle.motorcycle": "road_sign",
+    "vehicle.bicycle": "ramp_sect",
+    "vehicle.bus.bendy": "sound_barrier",
+    "vehicle.bus.rigid": "sound_barrier",
+    "vehicle.truck": "overpass",
+    "vehicle.construction": "tunnel",
     "vehicle.emergency.ambulance": "ignore",
     "vehicle.emergency.police": "ignore",
     "vehicle.trailer": "trailer",
@@ -66,7 +66,7 @@ cls_attr_dist = {
         "vehicle.parked": 0,
         "vehicle.stopped": 0,
     },
-    "bicycle": {
+    "ramp_sect": {
         "cycle.with_rider": 2791,
         "cycle.without_rider": 8946,
         "pedestrian.moving": 0,
@@ -76,7 +76,7 @@ cls_attr_dist = {
         "vehicle.parked": 0,
         "vehicle.stopped": 0,
     },
-    "bus": {
+    "sound_barrier": {
         "cycle.with_rider": 0,
         "cycle.without_rider": 0,
         "pedestrian.moving": 0,
@@ -86,7 +86,7 @@ cls_attr_dist = {
         "vehicle.parked": 3294,
         "vehicle.stopped": 3881,
     },
-    "car": {
+    "median_strip": {
         "cycle.with_rider": 0,
         "cycle.without_rider": 0,
         "pedestrian.moving": 0,
@@ -96,7 +96,7 @@ cls_attr_dist = {
         "vehicle.parked": 330133,
         "vehicle.stopped": 46898,
     },
-    "construction_vehicle": {
+    "tunnel": {
         "cycle.with_rider": 0,
         "cycle.without_rider": 0,
         "pedestrian.moving": 0,
@@ -116,7 +116,7 @@ cls_attr_dist = {
         "vehicle.parked": 400,
         "vehicle.stopped": 102,
     },
-    "motorcycle": {
+    "road_sign": {
         "cycle.with_rider": 4233,
         "cycle.without_rider": 8326,
         "pedestrian.moving": 0,
@@ -126,7 +126,7 @@ cls_attr_dist = {
         "vehicle.parked": 0,
         "vehicle.stopped": 0,
     },
-    "pedestrian": {
+    "street_trees": {
         "cycle.with_rider": 0,
         "cycle.without_rider": 0,
         "pedestrian.moving": 157444,
@@ -156,7 +156,7 @@ cls_attr_dist = {
         "vehicle.parked": 19224,
         "vehicle.stopped": 1895,
     },
-    "truck": {
+    "overpass": {
         "cycle.with_rider": 0,
         "cycle.without_rider": 0,
         "pedestrian.moving": 0,
@@ -626,22 +626,22 @@ def create_nuscenes_infos(root_path, version="v1.0-trainval", nsweeps=10, filter
             pickle.dump(val_nusc_infos, f)
 
 
-def eval_main(nusc, eval_version, res_path, eval_set, output_dir):
+def eval_main(nusc, eval_version, res_path, eval_set, output_dir, anno_path):
     # nusc = NuScenes(version=version, dataroot=str(root_path), verbose=True)
     # cfg = config_factory('detection_nia')
     cfg = config_factory('detection_cvpr_2019')
     # cfg = config_factory(eval_version)
 
-    if 'radar' in res_path:
-        if 'extreme' in res_path:
-            anno_path = '/path/to/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_radar.pkl'
-        else:
-            anno_path = '/path/to/CenterPoint-NIA/data/nia/infos_val_filter_True_radar.pkl'
-    else:
-        if 'extreme' in res_path:
-            anno_path = '/path/to/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_lidar.pkl'
-        else:
-            anno_path = '/data/kimgh/CenterPoint-NIA/data/infos_val_filter_True_lidar.pkl'
+    # if 'radar' in res_path:
+    #     if 'extreme' in res_path:
+    #         anno_path = '/path/to/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_radar.pkl'
+    #     else:
+    #         anno_path = '/path/to/CenterPoint-NIA/data/nia/infos_val_filter_True_radar.pkl'
+    # else:
+    #     if 'extreme' in res_path:
+    #         anno_path = '/path/to/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_lidar.pkl'
+    #     else:
+    #         anno_path = '/data/kimgh/CenterPoint-NIA/data/infos_val_filter_True_lidar.pkl'
 
     nusc_eval = NuScenesEval(
         nusc,
@@ -650,6 +650,6 @@ def eval_main(nusc, eval_version, res_path, eval_set, output_dir):
         eval_set=eval_set,
         output_dir=output_dir,
         verbose=True,
-        anno_path=anno_path,
+        anno_path=anno_path
     )
     metrics_summary = nusc_eval.main()

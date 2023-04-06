@@ -32,7 +32,7 @@ def waymo_data_prep(root_path, split, nsweeps=1):
         )
 
 def nia_data_prep(root_path, nsweeps=1, sensor='lidar', filter_zero=True, virtual=False, subsample=1):
-    nia_ds.create_nia_infos(root_path, sensor=sensor, subsample=subsample, ratio=ratio)
+    nia_ds.create_nia_infos(root_path, sensor=sensor, subsample=subsample)
     create_groundtruth_database(
         "NIA",
         root_path,

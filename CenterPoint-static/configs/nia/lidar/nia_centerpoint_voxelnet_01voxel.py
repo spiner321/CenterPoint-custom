@@ -3,13 +3,31 @@ import logging
 
 from det3d.utils.config_tool import get_downsample_factor
 
+# tasks = [
+#     dict(num_class=1, class_names=["car"]),
+#     dict(num_class=2, class_names=["truck", "construction_vehicle"]),
+#     dict(num_class=1, class_names=["bus"]),
+#     dict(num_class=2, class_names=["motorcycle", "bicycle"]),
+#     dict(num_class=1, class_names=["pedestrian"]),
+# ]
+
 tasks = [
-    dict(num_class=1, class_names=["car"]),
-    dict(num_class=2, class_names=["truck", "construction_vehicle"]),
-    dict(num_class=1, class_names=["bus"]),
-    dict(num_class=2, class_names=["motorcycle", "bicycle"]),
-    dict(num_class=1, class_names=["pedestrian"]),
+    dict(num_class=1, class_names=["median_strip"]),
+    dict(num_class=1, class_names=["road_sign"]),
+    dict(num_class=1, class_names=["ramp_sect"]),
+    dict(num_class=1, class_names=["sound_barrier"]),
+    dict(num_class=1, class_names=["overpass"]),
+    dict(num_class=1, class_names=["tunnel"]),
+    dict(num_class=1, class_names=["street_trees"]),
 ]
+
+# tasks = [
+#     dict(num_class=1, class_names=["median_strip"]),
+#     dict(num_class=2, class_names=["road_sign", "ramp_sect"]),
+#     dict(num_class=1, class_names=["sound_barrier"]),
+#     dict(num_class=2, class_names=["overpass", "tunnel"]),
+#     dict(num_class=1, class_names=["street_trees"]),
+# ]
 
 class_names = list(itertools.chain(*[t["class_names"] for t in tasks]))
 
@@ -66,9 +84,9 @@ train_cfg = dict(assigner=assigner)
 test_cfg = dict(
     post_center_limit_range=[-61.2, -61.2, -10.0, 61.2, 61.2, 10.0],
     nms=dict(
-        nms_pre_max_size=1000, #1000
-        nms_post_max_size=83, #83
-        nms_iou_threshold=0.2, #0.2
+        nms_pre_max_size=1000,
+        nms_post_max_size=83,
+        nms_iou_threshold=0.2,
     ),
     score_threshold=0.1,
     pc_range=[-51.2, -51.2],
@@ -80,32 +98,31 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-NIA/data" #"/home/ubuntu/VDC/SihwanHwang/CenterPoint/data/nia"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data_temp"
 
 db_sampler = dict(
     type="GT-AUG",
     enable=False,
     db_info_path= data_root + "/dbinfos_train_lidar.pkl",
-
     sample_groups=[
-        dict(car=3),
-        dict(truck=3),
-        dict(construction_vehicle=7),
-        dict(bus=3),
-        dict(motorcycle=2),
-        dict(bicycle=6),
-        dict(pedestrian=4),
+        dict(median_strip=3),
+        dict(road_sign=3),
+        dict(ramp_sect=7),
+        dict(sound_barrier=3),
+        dict(overpass=2),
+        dict(tunnel=6),
+        dict(street_trees=4),
     ],
     db_prep_steps=[
         dict(
             filter_by_min_num_points=dict(
-                car=5,
-                truck=5,
-                bus=5,
-                construction_vehicle=5,
-                motorcycle=5,
-                bicycle=5,
-                pedestrian=5,
+                median_strip=5,
+                road_sign=5,
+                sound_barrier=5,
+                ramp_sect=5,
+                overpass=5,
+                tunnel=5,
+                street_trees=5,
             )
         ),
         dict(filter_by_difficulty=[-1],),
@@ -152,13 +169,14 @@ test_pipeline = [
 ]
 
 train_anno = data_root + "/infos_train_filter_True_lidar.pkl"
-val_anno = data_root + "/infos_val_filter_True_lidar.pkl"
-# val_anno = data_root + "/infos_extreme_val_filter_True_lidar.pkl" # extreme
+val_anno = data_root + "/infos_test_normal_filter_True_lidar.pkl"
+# val_anno = "/workspace/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_lidar.pkl" # extreme
 test_anno = None
 
 data = dict(
-    samples_per_gpu=16,
-    workers_per_gpu=8,
+    samples_per_gpu=3,
+    workers_per_gpu=3
+,
     train=dict(
         type=dataset_type,
         root_path=data_root,
@@ -211,13 +229,13 @@ log_config = dict(
 )
 # yapf:enable
 # runtime settings
-total_epochs = 25
-device_ids = range(4)
+total_epochs = 1
+device_ids = range(8)
 dist_params = dict(backend="nccl", init_method="env://")
 log_level = "INFO"
 work_dir = './work_dirs/{}/'.format(__file__[__file__.rfind('/') + 1:-3])
-checkpoint_dir = work_dir + 'lidar_epoch_10.pth' #'latest.pth'
+checkpoint_dir = work_dir + 'latest.pth'
 sensor = 'lidar'
 load_from = None 
-resume_from = None  
+resume_from = None
 workflow = [('train', 1)]

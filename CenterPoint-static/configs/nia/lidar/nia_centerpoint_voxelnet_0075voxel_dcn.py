@@ -4,11 +4,11 @@ import logging
 from det3d.utils.config_tool import get_downsample_factor
 
 tasks = [
-    dict(num_class=1, class_names=["car"]),
-    # dict(num_class=2, class_names=["truck", "construction_vehicle"]),
-    # dict(num_class=2, class_names=["bus"]),
-    # dict(num_class=2, class_names=["motorcycle", "bicycle"]),
-    # dict(num_class=2, class_names=["pedestrian"]),
+    dict(num_class=1, class_names=["median_strip"]),
+    dict(num_class=2, class_names=["road_sign", "ramp_sect"]),
+    dict(num_class=1, class_names=["sound_barrier"]),
+    dict(num_class=2, class_names=["overpass", "tunnel"]),
+    dict(num_class=1, class_names=["street_trees"]),
 ]
 
 
@@ -85,31 +85,31 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/path/to/data"
+data_root = "/home/ubuntu/VDC/SihwanHwang/CenterPoint/data/nia"
 
 db_sampler = dict(
     type="GT-AUG",
     enable=False,
-    db_info_path="/path/to/CenterPoint-NIA/data/nia/dbinfos_train_lidar.pkl",
+    db_info_path="/home/ubuntu/VDC/SihwanHwang/CenterPoint/data/nia/dbinfos_train_lidar.pkl",
     sample_groups=[
-        dict(car=2),
-        # dict(truck=3),
-        # dict(construction_vehicle=7),
-        # dict(bus=4),
-        # dict(motorcycle=6),
-        # dict(bicycle=6),
-        # dict(pedestrian=2),
+        dict(median_strip=3),
+        dict(road_sign=3),
+        dict(ramp_sect=7),
+        dict(sound_barrier=3),
+        dict(overpass=2),
+        dict(tunnel=6),
+        dict(street_trees=4),
     ],
     db_prep_steps=[
         dict(
             filter_by_min_num_points=dict(
-                car=5,
-                # truck=5,
-                # bus=5,
-                # construction_vehicle=5,
-                # motorcycle=5,
-                # bicycle=5,
-                # pedestrian=5,
+                median_strip=5,
+                road_sign=5,
+                sound_barrier=5,
+                ramp_sect=5,
+                overpass=5,
+                tunnel=5,
+                street_trees=5,
             )
         ),
         dict(filter_by_difficulty=[-1],),
@@ -156,8 +156,8 @@ test_pipeline = [
     dict(type="Reformat"),
 ]
 
-train_anno = "/path/to/CenterPoint-NIA/data/nia/infos_train_filter_True_lidar.pkl"
-val_anno = "/path/to/CenterPoint-NIA/data/nia/infos_val_filter_True_lidar.pkl"
+train_anno = "/home/ubuntu/VDC/SihwanHwang/CenterPoint/data/nia/infos_train_filter_True_lidar.pkl"
+val_anno = "/home/ubuntu/VDC/SihwanHwang/CenterPoint/data/nia/infos_val_filter_True_lidar.pkl"
 test_anno = None
 
 data = dict(
@@ -215,7 +215,7 @@ log_config = dict(
 )
 # yapf:enable
 # runtime settings
-total_epochs = 20
+total_epochs = 30
 device_ids = range(8)
 dist_params = dict(backend="nccl", init_method="env://")
 log_level = "INFO"
@@ -223,4 +223,4 @@ work_dir = './work_dirs/{}/'.format(__file__[__file__.rfind('/') + 1:-3])
 checkpoint_dir = work_dir + 'latest.pth'
 load_from = None
 resume_from = None 
-workflow = [('train', 1)]
+workflow = [('train', 'val', 1)]
