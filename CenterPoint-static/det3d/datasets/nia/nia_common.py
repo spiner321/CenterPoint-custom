@@ -644,7 +644,8 @@ def _fill_infos(root_path, frames, sensor='lidar'):
         if sensor == 'lidar':
             lidar_path = os.path.join(root_path, frame_name)
         elif sensor == 'radar':
-            radar_path = frame_name.replace('Lidar', 'Radar/RadarFront').replace('LR', 'RF')
+            radar_frame_name = frame_name.replace('Lidar', 'Radar/RadarFront').replace('LR', 'RF')
+            radar_path = os.path.join(root_path, radar_frame_name)
             lidar_path = radar_path
 
         ''' Annotation path '''
@@ -732,7 +733,7 @@ def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=1):
     val_frames = sorted(glob.glob(f'{root_path}/val/source/*/*/*/Lidar/*'))
 
     test_normal_frames = sorted(glob.glob(f'{root_path}/test/source/normal/*/*/Lidar/*'))
-    test_abnormal_frames = sorted(glob.glob(f'{root_path}/test/target/abnormal/*/*/Lidar/*'))
+    test_abnormal_frames = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*/Lidar/*'))
 
     # train_frames = get_available_frames(normal_path, train_scenes, subsample=subsample)
     # val_frames = get_available_frames(normal_path, val_scenes, subsample=subsample)
