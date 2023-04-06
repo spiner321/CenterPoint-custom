@@ -665,6 +665,9 @@ def _fill_infos(root_path, frames, sensor='lidar'):
 
         ref_obj = get_obj(ref_path)
 
+        if sensor == 'radar':
+            frame_name = radar_frame_name
+
         info = {
         "lidar_path": lidar_path,
         "cam_front_path": cam_path,

@@ -15,6 +15,12 @@ class VoxelFeatureExtractorV3(nn.Module):
         self.num_input_features = num_input_features
 
     def forward(self, features, num_voxels, coors=None):
+        
+        # print('ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ')
+        # print(self.num_input_features)
+        # print(features)
+        # print('ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ')
+
         assert self.num_input_features == features.shape[-1]
 
         points_mean = features[:, :, : self.num_input_features].sum(

@@ -137,6 +137,9 @@ def points_to_voxel(
         coordinates: [M, 3] int32 tensor.
         num_points_per_voxel: [M] int32 tensor.
     """
+
+    # print(points)
+
     if not isinstance(voxel_size, np.ndarray):
         voxel_size = np.array(voxel_size, dtype=points.dtype)
     if not isinstance(coors_range, np.ndarray):
