@@ -98,7 +98,7 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data_temp"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data"
 
 db_sampler = dict(
     type="GT-AUG",
