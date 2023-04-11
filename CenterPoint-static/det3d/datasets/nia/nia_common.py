@@ -694,14 +694,23 @@ def _fill_infos(root_path, frames, sensor='lidar'):
             for i in remove_idx:
                 annotations.pop(i)
 
-        ref_boxes = [anno['3d_box'][0] for anno in annotations]
+        # ref_boxes = [anno['3d_box'][0] for anno in annotations]
+
+        # sub id 전부 사용
+        ref_boxes = []
+        names = []
+        for anno in annotations:
+            for box in anno['3d_box']:
+                ref_boxes.append(box)
+            name = [anno['category']]*len(anno['3d_box'])
+            names.extend(name)
         locs = np.array([b['location'] for b in ref_boxes]).reshape(-1, 3)
         dims = np.array([b['dimension'] for b in ref_boxes]).reshape(-1, 3)
         dims[:, [2, 1]] = dims[:, [1, 2]] # w/h/l(NIA) -> w/l/h (Nuscene)
         rots = np.array([b['rotation_y'] for b in ref_boxes]).reshape(-1, 1)
         # rots = np.array([b.orientation.yaw_pitch_roll[0] for b in ref_boxes]).reshape(-1, 1)
         velocity = np.zeros_like(locs)
-        names = np.array([anno['category'] for anno in annotations])
+        # names = np.array([anno['category'] for anno in annotations])
         if 'ETC' in names:
             names = np.where(names == 'ETC', 'construction_vehicle', names)
         tokens = np.array([anno['id'] for anno in annotations])
@@ -713,7 +722,8 @@ def _fill_infos(root_path, frames, sensor='lidar'):
             print("ref_path:", ref_path)
         # gt_boxes = np.concatenate([locs, dims, rots], axis=1)
 
-        assert len(annotations) == len(gt_boxes) == len(velocity)
+        # assert len(annotations) == len(gt_boxes) == len(velocity)
+        assert len(ref_boxes) == len(gt_boxes) == len(velocity)
 
         info["gt_boxes"] = gt_boxes
         info["gt_boxes_velocity"] = velocity
