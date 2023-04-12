@@ -29,6 +29,7 @@ from det3d.datasets.registry import DATASETS
 @DATASETS.register_module
 class NuScenesDataset(PointCloudDataset):
     NumPointFeatures = 5  # x, y, z, intensity, ring_index
+    # NumPointFeatures = 4  # x, y, z, intensity
 
     def __init__(
         self,

@@ -62,6 +62,8 @@ class Preprocess(object):
         else:
             raise NotImplementedError
 
+        # print(res)
+
         if self.mode == "train":
             anno_dict = res["lidar"]["annotations"]
 
@@ -99,6 +101,7 @@ class Preprocess(object):
                     calib=None,
                     road_planes=None
                 )
+                # print(sampled_dict)
 
                 if sampled_dict is not None:
                     sampled_gt_names = sampled_dict["gt_names"]
