@@ -80,7 +80,7 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-NIA/data" #"/home/ubuntu/VDC/SihwanHwang/CenterPoint/data/nia"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-dynamic/data" #"/home/ubuntu/VDC/SihwanHwang/CenterPoint/data/nia"
 
 db_sampler = dict(
     type="GT-AUG",
@@ -157,7 +157,7 @@ val_anno = data_root + "/infos_val_filter_True_lidar.pkl"
 test_anno = None
 
 data = dict(
-    samples_per_gpu=16,
+    samples_per_gpu=4,
     workers_per_gpu=8,
     train=dict(
         type=dataset_type,
@@ -213,7 +213,7 @@ log_config = dict(
 # runtime settings
 total_epochs = 25
 device_ids = range(4)
-dist_params = dict(backend="nccl", init_method="env://")
+# dist_params = dict(backend="nccl", init_method="env://")
 log_level = "INFO"
 work_dir = './work_dirs/{}/'.format(__file__[__file__.rfind('/') + 1:-3])
 checkpoint_dir = work_dir + 'lidar_epoch_10.pth' #'latest.pth'

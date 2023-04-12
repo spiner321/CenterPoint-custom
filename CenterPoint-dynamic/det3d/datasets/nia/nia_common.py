@@ -252,7 +252,6 @@ def get_available_scenes(dir_path, ratio=5):
             idx 2: clip number
             '''
             args = clip.split('_')
-            print(args)
             if args[1] == 'Clip':
                 available_clips.append(clip)
                 all_clips.append(clip)
@@ -281,10 +280,10 @@ def get_available_frames(dir_path, available_clips, subsample=1):
         vehicle = clips.split('_')[0]
         clip_num = clips.split('_')[2]
         scene_num = clips.split('_')[3]
-        frames = os.listdir(os.path.join(dir_path, scene_num, "source", clips, "Lidar"))
-        frames = [str(os.path.join(scene_num, "source", clips, "Lidar/"))+f for f in frames]
-        # frames = os.listdir(os.path.join(dir_path, vehicle, "source", clips, "Lidar"))
-        # frames = [str(os.path.join(vehicle, "source", clips, "Lidar/"))+f for f in frames]
+        # frames = os.listdir(os.path.join(dir_path, scene_num, "source", clips, "Lidar"))
+        # frames = [str(os.path.join(scene_num, "source", clips, "Lidar/"))+f for f in frames]
+        frames = os.listdir(os.path.join(dir_path, vehicle, "source", clips, "Lidar"))
+        frames = [str(os.path.join(vehicle, "source", clips, "Lidar/"))+f for f in frames]
         frames = frames[::subsample]
         available_frames.extend(frames)
     return available_frames
@@ -699,7 +698,7 @@ def _fill_infos(root_path, frames, sensor='lidar'):
 
         # if not test
         annotations = ref_obj['annotation']
-        if sensor is 'radar':
+        if sensor == 'radar':
             remove_idx = []
             for idx, ann in enumerate(annotations):
                 if ann['3d_box'][0]['radar_point_count'] < 3:

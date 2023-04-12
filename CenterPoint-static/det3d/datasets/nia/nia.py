@@ -28,7 +28,8 @@ from det3d.datasets.registry import DATASETS
 
 @DATASETS.register_module
 class NIADataset(PointCloudDataset):
-    NumPointFeatures = 5 # x, y, z, intensity, ring_index
+    # NumPointFeatures = 5 # x, y, z, intensity, ring_index
+    NumPointFeatures = 4 # x, y, z, intensity, ring_index
 
     def __init__(
         self,
@@ -53,6 +54,11 @@ class NIADataset(PointCloudDataset):
         print(self.nsweeps)
 
         self._info_path = info_path
+        
+        print('------------------------------------')
+        print(info_path)
+        print('------------------------------------')
+
         self._class_names = class_names
 
         if not hasattr(self, "_nusc_infos"):
@@ -91,6 +97,8 @@ class NIADataset(PointCloudDataset):
 
             duplicated_samples = sum([len(v) for _, v in _cls_infos.items()])
             _cls_dist = {k: len(v) / max(duplicated_samples, 1) for k, v in _cls_infos.items()}
+
+            print(_cls_dist) # for test
 
             self._nusc_infos = []
 

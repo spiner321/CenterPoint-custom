@@ -176,6 +176,7 @@ class DataBaseSamplerV2:
             num_sampled = len(sampled)
             s_points_list = []
             for info in sampled:
+                # print(info)
                 try:
                     s_points = np.fromfile(
                         str(pathlib.Path(root_path) / info["path"]), dtype=np.float32
