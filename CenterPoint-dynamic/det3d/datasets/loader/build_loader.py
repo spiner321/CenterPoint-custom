@@ -32,8 +32,8 @@ def build_dataloader(
         #                      rank=rank,
         #                      shuffle=shuffle)
         if shuffle:
-            # sampler = DistributedGroupSampler(dataset, batch_size, world_size, rank)
-            sampler = torch.utils.data.distributed.DistributedSampler(dataset)
+            sampler = DistributedGroupSampler(dataset, batch_size, world_size, rank)
+            # sampler = torch.utils.data.distributed.DistributedSampler(dataset)
         else:
             sampler = DistributedSampler(dataset, world_size, rank, shuffle=False)
         batch_size = batch_size

@@ -1,5 +1,6 @@
 import platform
 from functools import partial
+import torch
 
 from det3d.torchie.parallel import collate, collate_kitti
 from det3d.torchie.trainer import get_dist_info
@@ -32,6 +33,7 @@ def build_dataloader(
         #                      shuffle=shuffle)
         if shuffle:
             sampler = DistributedGroupSampler(dataset, batch_size, world_size, rank)
+            # sampler = torch.utils.data.distributed.DistributedSampler(dataset)
         else:
             sampler = DistributedSampler(dataset, world_size, rank, shuffle=False)
         batch_size = batch_size
@@ -50,8 +52,8 @@ def build_dataloader(
         shuffle=(sampler is None),
         num_workers=num_workers,
         collate_fn=collate_kitti,
-        # pin_memory=True,
-        pin_memory=False,
+        pin_memory=True,
+        # pin_memory=False,
     )
 
     return data_loader
