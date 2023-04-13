@@ -1,8 +1,8 @@
 **__pycache__**
 **egg-info**
-data/
-demo/
-result/
+data/*
+demo/*
+result/*
 det3d/ops/dcn/build/
 det3d/ops/iou3d_nms/build/
 *.so
@@ -11,7 +11,6 @@ venv/
 *.idea/
 *.so
 *.yaml
-*.sh 
 *.pth
 *.pkl
 *.zip

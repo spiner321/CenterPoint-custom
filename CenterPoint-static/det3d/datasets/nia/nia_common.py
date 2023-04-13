@@ -696,16 +696,17 @@ def _fill_infos(root_path, frames, sensor='lidar'):
 
 
         # sub id 전부 사용
-        # ref_boxes = []
-        # names = []
-        # for anno in annotations:
-        #     for box in anno['3d_box']:
-        #         ref_boxes.append(box)
-        #     name = [anno['category']]*len(anno['3d_box'])
-        #     names.extend(name)
+        ref_boxes = []
+        names = []
+        for anno in annotations:
+            for box in anno['3d_box']:
+                ref_boxes.append(box)
+            name = [anno['category']]*len(anno['3d_box'])
+            names.extend(name)
 
-        ref_boxes = [anno['3d_box'][0] for anno in annotations]
-        names = np.array([anno['category'] for anno in annotations])
+        # # sub id 첫번째만 사용
+        # ref_boxes = [anno['3d_box'][0] for anno in annotations]
+        # names = np.array([anno['category'] for anno in annotations])
 
         locs = np.array([b['location'] for b in ref_boxes]).reshape(-1, 3)
         dims = np.array([b['dimension'] for b in ref_boxes]).reshape(-1, 3)
@@ -724,8 +725,8 @@ def _fill_infos(root_path, frames, sensor='lidar'):
             print("ref_path:", ref_path)
         # gt_boxes = np.concatenate([locs, dims, rots], axis=1)
 
-        assert len(annotations) == len(gt_boxes) == len(velocity) 
-        # assert len(ref_boxes) == len(gt_boxes) == len(velocity) # sub id 전부 사용
+        # assert len(annotations) == len(gt_boxes) == len(velocity) # sub id 첫번째만 사용
+        assert len(ref_boxes) == len(gt_boxes) == len(velocity) # sub id 전부 사용
 
         info["gt_boxes"] = gt_boxes
         info["gt_boxes_velocity"] = velocity
