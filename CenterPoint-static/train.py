@@ -66,8 +66,8 @@ def parse_args(**kwargs):
     if 'sensor' in kwargs:
         args.sensor = kwargs.get('sensor', 'lidar')
 
-    if args.sensor == 'radar':
-        args.config = '/path/to/CenterPoint-NIA/configs/nia/radar/nia_centerpoint_voxelnet_01voxel_radar.py'
+    # if args.sensor == 'radar':
+    #     args.config = '/path/to/CenterPoint-NIA/configs/nia/radar/nia_centerpoint_voxelnet_01voxel_radar.py'
 
     return args
 

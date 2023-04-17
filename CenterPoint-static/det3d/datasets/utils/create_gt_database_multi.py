@@ -7,6 +7,9 @@ from det3d.core import box_np_ops
 from det3d.datasets.dataset_factory import get_dataset
 from tqdm import tqdm
 
+from concurrent.futures import ProcessPoolExecutor
+from functools import partial
+
 dataset_name_map = {
     "NUSC": "NuScenesDataset",
     "WAYMO": "WaymoDataset",
@@ -117,78 +120,22 @@ def info_distribution(
     #     pickle.dump(all_db_infos, f)
 
 
+all_db_infos = {}
+group_counter = 0
 
-def create_groundtruth_database(
-        dataset_class_name,
-        data_path,
-        info_path=None,
-        used_classes=None,
-        db_path=None,
-        dbinfo_path=None,
-        relative_path=True,
-        virtual=False,
-        **kwargs,
-):
-    pipeline = [
-        {
-            "type": "LoadPointCloudFromFile",
-            "dataset": dataset_name_map[dataset_class_name],
-        },
-        {"type": "LoadPointCloudAnnotations", "with_bbox": True},
-    ]
+def get_gt_data(
+    dataset_idx, dataset,
+    dataset_class_name, data_path, info_path, used_classes, db_path, dbinfo_path, relative_path, virtual, nsweeps
+    ):
 
-    if "nsweeps" in kwargs:
-        dataset = get_dataset(dataset_class_name)(
-            info_path=info_path,
-            root_path=data_path,
-            pipeline=pipeline,
-            test_mode=True,
-            nsweeps=kwargs["nsweeps"],
-            virtual=virtual
-        )
-        nsweeps = dataset.nsweeps
-    else:
-        dataset = get_dataset(dataset_class_name)(
-            info_path=info_path, root_path=data_path, test_mode=True, pipeline=pipeline
-        )
-        nsweeps = 1
+    global all_db_infos
+    global group_counter
 
-    root_path = Path(data_path)
-
-    if dataset_class_name in ["WAYMO", "NUSC"]:
-        if db_path is None:
-            if virtual:
-                db_path = root_path / f"gt_database_{nsweeps}sweeps_withvelo_virtual"
-            else:
-                db_path = root_path / f"gt_database_{nsweeps}sweeps_withvelo"
-        if dbinfo_path is None:
-            if virtual:
-                dbinfo_path = root_path / f"dbinfos_train_{nsweeps}sweeps_withvelo_virtual.pkl"
-            else:
-                dbinfo_path = root_path / f"dbinfos_train_{nsweeps}sweeps_withvelo.pkl"
-    elif dataset_class_name in ["NIA"]:
-        if db_path is None:
-            if virtual:
-                db_path = root_path / f"gt_database_{kwargs['sensor']}_virtual"
-            else:
-                db_path = root_path / f"gt_database_{kwargs['sensor']}"
-        if dbinfo_path is None:
-            if virtual:
-                dbinfo_path = root_path / f"dbinfos_train_{kwargs['sensor']}_virtual.pkl"
-            else:
-                dbinfo_path = root_path / f"dbinfos_train_{kwargs['sensor']}.pkl"
-    else:
-        raise NotImplementedError()
-
-    db_path.mkdir(parents=True, exist_ok=True)
-
-    all_db_infos = {}
-    group_counter = 0
-
-    for index in tqdm(range(len(dataset))[:40]):
+    for index in tqdm(dataset_idx):
         image_idx = index
         # modified to nuscenes
         sensor_data = dataset.get_sensor_data(index)
+        # print(sensor_data)
         if "image_idx" in sensor_data["metadata"]:
             image_idx = sensor_data["metadata"]["image_idx"]
 
@@ -277,6 +224,102 @@ def create_groundtruth_database(
                     all_db_infos[names[i]].append(db_info)
                 else:
                     all_db_infos[names[i]] = [db_info]
+
+
+def create_groundtruth_database(
+        dataset_class_name,
+        data_path,
+        info_path=None,
+        used_classes=None,
+        db_path=None,
+        dbinfo_path=None,
+        relative_path=True,
+        virtual=False,
+        **kwargs,
+):
+    pipeline = [
+        {
+            "type": "LoadPointCloudFromFile",
+            "dataset": dataset_name_map[dataset_class_name],
+        },
+        {"type": "LoadPointCloudAnnotations", "with_bbox": True},
+    ]
+
+    if "nsweeps" in kwargs:
+        dataset = get_dataset(dataset_class_name)(
+            info_path=info_path,
+            root_path=data_path,
+            pipeline=pipeline,
+            test_mode=True,
+            nsweeps=kwargs["nsweeps"],
+            virtual=virtual
+        )
+        nsweeps = dataset.nsweeps
+    else:
+        dataset = get_dataset(dataset_class_name)(
+            info_path=info_path, root_path=data_path, test_mode=True, pipeline=pipeline
+        )
+        nsweeps = 1
+
+    root_path = Path(data_path)
+
+    if dataset_class_name in ["WAYMO", "NUSC"]:
+        if db_path is None:
+            if virtual:
+                db_path = root_path / f"gt_database_{nsweeps}sweeps_withvelo_virtual"
+            else:
+                db_path = root_path / f"gt_database_{nsweeps}sweeps_withvelo"
+        if dbinfo_path is None:
+            if virtual:
+                dbinfo_path = root_path / f"dbinfos_train_{nsweeps}sweeps_withvelo_virtual.pkl"
+            else:
+                dbinfo_path = root_path / f"dbinfos_train_{nsweeps}sweeps_withvelo.pkl"
+    elif dataset_class_name in ["NIA"]:
+        if db_path is None:
+            if virtual:
+                db_path = root_path / f"gt_database_{kwargs['sensor']}_virtual"
+            else:
+                db_path = root_path / f"gt_database_{kwargs['sensor']}"
+        if dbinfo_path is None:
+            if virtual:
+                dbinfo_path = root_path / f"dbinfos_train_{kwargs['sensor']}_virtual.pkl"
+            else:
+                dbinfo_path = root_path / f"dbinfos_train_{kwargs['sensor']}.pkl"
+    else:
+        raise NotImplementedError()
+
+    db_path.mkdir(parents=True, exist_ok=True)
+    
+    work_array = np.arange(len(dataset))[:40]
+    # with ProcessPoolExecutor(max_workers=4) as executor:
+    #     executor.map(get_gt_data, [work_array])
+    num_process = 4
+    batch_size = len(work_array) // num_process
+    start_end_idx = [{"start": i * batch_size, "end": (i + 1) * batch_size} for i in range(num_process+1)]
+
+    with ProcessPoolExecutor(max_workers=num_process) as executor:
+        for idx in start_end_idx:
+            batch = work_array[idx["start"]:idx["end"]]
+            task = partial(
+                            get_gt_data, 
+                            batch,
+                            dataset,
+                            dataset_class_name,
+                            data_path,
+                            info_path,
+                            used_classes,
+                            db_path,
+                            dbinfo_path,
+                            relative_path,
+                            virtual,
+                            nsweeps
+                            )
+            executor.submit(task)
+
+    global all_db_infos
+    global group_counter
+
+    print(all_db_infos)
 
     print("dataset length: ", len(dataset))
     for k, v in all_db_infos.items():

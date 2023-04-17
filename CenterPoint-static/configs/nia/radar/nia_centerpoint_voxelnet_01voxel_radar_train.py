@@ -98,12 +98,17 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/sample"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/radar_allsub"
+
+train_anno = data_root + "/infos_train_filter_True_radar.pkl"
+val_anno = data_root + "/infos_val_filter_True_radar.pkl"
+# val_anno = "/workspace/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_lidar.pkl" # extreme
+test_anno = None
 
 db_sampler = dict(
     type="GT-AUG",
     enable=False,
-    db_info_path= data_root + "/dbinfos_train_lidar.pkl",
+    db_info_path= data_root + "/dbinfos_train_radar.pkl",
     sample_groups=[
         dict(median_strip=3),
         dict(road_sign=3),
@@ -168,13 +173,9 @@ test_pipeline = [
     dict(type="Reformat"),
 ]
 
-train_anno = data_root + "/infos_train_filter_True_lidar.pkl"
-val_anno = data_root + "/infos_val_filter_True_lidar.pkl"
-# val_anno = "/workspace/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_lidar.pkl" # extreme
-test_anno = None
 
 data = dict(
-    samples_per_gpu=6,
+    samples_per_gpu=16,
     workers_per_gpu=8
 ,
     train=dict(
@@ -229,7 +230,7 @@ log_config = dict(
 )
 # yapf:enable
 # runtime settings
-total_epochs = 1
+total_epochs = 100
 device_ids = range(8)
 dist_params = dict(backend="nccl", init_method="env://")
 log_level = "INFO"
