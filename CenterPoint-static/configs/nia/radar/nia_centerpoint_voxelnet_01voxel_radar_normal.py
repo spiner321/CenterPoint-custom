@@ -98,7 +98,11 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/radar_allsub"
+train_anno = data_root + "/infos_train_filter_True_radar.pkl"
+val_anno = data_root + "/infos_test_normal_filter_True_radar.pkl"
+# val_anno = "/workspace/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_lidar.pkl" # extreme
+test_anno = None
 
 db_sampler = dict(
     type="GT-AUG",
@@ -168,14 +172,11 @@ test_pipeline = [
     dict(type="Reformat"),
 ]
 
-train_anno = data_root + "/infos_train_filter_True_radar.pkl"
-val_anno = data_root + "/infos_test_normal_filter_True_radar.pkl"
-# val_anno = "/workspace/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_lidar.pkl" # extreme
-test_anno = None
+
 
 data = dict(
-    samples_per_gpu=3,
-    workers_per_gpu=3
+    samples_per_gpu=4,
+    workers_per_gpu=8
 ,
     train=dict(
         type=dataset_type,
