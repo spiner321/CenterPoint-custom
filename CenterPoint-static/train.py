@@ -1,30 +1,28 @@
 import argparse
 import json
 import os
-import open3d
 import sys
-
-from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning, NumbaWarning
 import warnings
+
+import open3d
+from numba.core.errors import (NumbaDeprecationWarning,
+                               NumbaPendingDeprecationWarning, NumbaWarning)
+
 warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
 warnings.simplefilter('ignore', category=NumbaWarning)
 
+import subprocess
+
 import numpy as np
 import torch
+import torch.distributed as dist
 import yaml
-
 from det3d.datasets import build_dataset
 from det3d.models import build_detector
 from det3d.torchie import Config
-from det3d.torchie.apis import (
-    build_optimizer,
-    get_root_logger,
-    init_dist,
-    set_random_seed,
-    train_detector,
-)
-import torch.distributed as dist
-import subprocess
+from det3d.torchie.apis import (build_optimizer, get_root_logger, init_dist,
+                                set_random_seed, train_detector)
+
 
 def parse_args(**kwargs):
     config_path = '/path/to/CenterPoint-NIA/configs/nia/lidar/nia_centerpoint_voxelnet_01voxel.py'
@@ -66,8 +64,8 @@ def parse_args(**kwargs):
     if 'sensor' in kwargs:
         args.sensor = kwargs.get('sensor', 'lidar')
 
-    if args.sensor == 'radar':
-        args.config = '/path/to/CenterPoint-NIA/configs/nia/radar/nia_centerpoint_voxelnet_01voxel_radar.py'
+    # if args.sensor == 'radar':
+    #     args.config = '/path/to/CenterPoint-NIA/configs/nia/radar/nia_centerpoint_voxelnet_01voxel_radar.py'
 
     return args
 

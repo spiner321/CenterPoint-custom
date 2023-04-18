@@ -5,7 +5,8 @@ import pickle
 import fire, os
 
 from det3d.datasets.nuscenes import nusc_common as nu_ds
-from det3d.datasets.utils.create_gt_database import create_groundtruth_database, info_distribution
+# from det3d.datasets.utils.create_gt_database import create_groundtruth_database, info_distribution
+from det3d.datasets.utils.create_gt_database_multi import create_groundtruth_database, info_distribution # multiprocessing
 from det3d.datasets.waymo import waymo_common as waymo_ds
 from det3d.datasets.nia import nia_common as nia_ds
 
@@ -31,15 +32,16 @@ def waymo_data_prep(root_path, split, nsweeps=1):
             nsweeps=nsweeps
         )
 
-def nia_data_prep(root_path, nsweeps=1, sensor='lidar', filter_zero=True, virtual=False, subsample=1):
-    nia_ds.create_nia_infos(root_path, sensor=sensor, subsample=subsample)
+def nia_data_prep(root_path, nsweeps=1, sensor='lidar', filter_zero=True, virtual=False, subsample=1, num_process=4):
+    # nia_ds.create_nia_infos(root_path, sensor=sensor, subsample=subsample)
     create_groundtruth_database(
         "NIA",
         root_path,
         Path(root_path) / "infos_train_filter_{}_{}.pkl".format(filter_zero, sensor),
         nsweeps=nsweeps,
         virtual=virtual,
-        sensor=sensor
+        sensor=sensor,
+        num_process=num_process,
     )
     # info_distribution(root_path, Path(root_path) / "infos_val_filter_True_{}.pkl".format(sensor), nsweeps=nsweeps)
     # info_distribution(root_path, Path(root_path) / "infos_extreme_val_filter_True_{}.pkl".format(sensor), nsweeps=nsweeps)
