@@ -112,24 +112,20 @@ def info_distribution(
     for k, v in all_db_infos.items():
         print(f"load {len(v)} {k} database infos")
 
-    print(all_db_infos)
-
     # import json
     # import pickle
     # with open(f'{root_path}/all_db_infos.pkl', 'w') as f:
     #     pickle.dump(all_db_infos, f)
 
 
-all_db_infos = {}
-group_counter = 0
 
 def get_gt_data(
     dataset_idx, dataset,
     dataset_class_name, data_path, info_path, used_classes, db_path, dbinfo_path, relative_path, virtual, nsweeps
     ):
 
-    global all_db_infos
-    global group_counter
+    all_db_infos = {}
+    group_counter = 0
 
     for index in tqdm(dataset_idx):
         image_idx = index
@@ -225,6 +221,8 @@ def get_gt_data(
                 else:
                     all_db_infos[names[i]] = [db_info]
 
+    return all_db_infos
+
 
 def create_groundtruth_database(
         dataset_class_name,
@@ -291,12 +289,13 @@ def create_groundtruth_database(
     db_path.mkdir(parents=True, exist_ok=True)
     
     work_array = np.arange(len(dataset))[:40]
-    # with ProcessPoolExecutor(max_workers=4) as executor:
-    #     executor.map(get_gt_data, [work_array])
-    num_process = 4
+
+    num_process = kwargs['num_process']
     batch_size = len(work_array) // num_process
     start_end_idx = [{"start": i * batch_size, "end": (i + 1) * batch_size} for i in range(num_process+1)]
 
+    results = []
+    futures = []
     with ProcessPoolExecutor(max_workers=num_process) as executor:
         for idx in start_end_idx:
             batch = work_array[idx["start"]:idx["end"]]
@@ -314,12 +313,50 @@ def create_groundtruth_database(
                             virtual,
                             nsweeps
                             )
-            executor.submit(task)
+            future = executor.submit(task)
+            futures.append(future)
+            # all_db_infos.append(result)
+        
+        for future in futures:
+            result = future.result()
+            results.append(result)
+    
+    # from itertools import chain
+    # from collections import defaultdict
+    
+    # reindexing group_id
+    all_db_infos = {'median_strip': [],
+                    'road_sign': [],
+                    'overpass': [],
+                    'ramp_sect': [],
+                    'sound_barrier': [],
+                    'street_trees': [],
+                    'tunnel': [],
+                    }
 
-    global all_db_infos
-    global group_counter
+    group_counter = 0
+    for dbinfo in results:
 
-    print(all_db_infos)
+        for v_ls in dbinfo.values():
+            for v in v_ls:
+                v['group_id'] += group_counter
+
+        for k_ls in dbinfo.keys():
+            group_counter += len(dbinfo[k_ls])
+
+        for k, v in dbinfo.items():
+            if k in all_db_infos.keys():
+                all_db_infos[k].extend(v)
+
+    del_keys = []
+    for k, v in all_db_infos.items():
+        if len(v) == 0:
+            del_keys.append(k)
+
+    for k in del_keys:
+        del all_db_infos[k]
+        # all_db_infos.pop(k)
+
 
     print("dataset length: ", len(dataset))
     for k, v in all_db_infos.items():
