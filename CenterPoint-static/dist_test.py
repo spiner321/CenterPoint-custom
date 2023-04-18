@@ -59,11 +59,11 @@ def parse_args(**kwargs):
     parser.add_argument(
         "--launcher",
         choices=["none", "pytorch", "slurm", "mpi"],
-        default="none",
+        default="pytorch",
         help="job launcher",
     )
     parser.add_argument("--speed_test", action="store_true")
-    parser.add_argument("--local_rank", type=int, default=0)
+    parser.add_argument("--local_rank", "--local-rank", type=int, default=0)
     parser.add_argument("--testset", action="store_true")
     parser.add_argument("--anno_path", type=str, default=None)
 

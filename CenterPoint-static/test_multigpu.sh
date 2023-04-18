@@ -3,7 +3,6 @@
 NGPUS=$1
 PY_ARGS=${@:2}
 
-# set random port
 while true
 do
     PORT=$(( ((RANDOM<<15)|RANDOM) % 49152 + 10000 ))
@@ -14,4 +13,4 @@ do
 done
 echo $PORT
 
-python -m torch.distributed.launch --nproc_per_node=${NGPUS} --rdzv_endpoint=localhost:${PORT} train.py ${PY_ARGS}
+python -m torch.distributed.launch --nproc_per_node=${NGPUS} --rdzv_endpoint=localhost:${PORT} dist_test.py ${PY_ARGS}
