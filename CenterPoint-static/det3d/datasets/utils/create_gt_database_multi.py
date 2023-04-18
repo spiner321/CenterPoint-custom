@@ -288,7 +288,7 @@ def create_groundtruth_database(
 
     db_path.mkdir(parents=True, exist_ok=True)
     
-    work_array = np.arange(len(dataset))[:40]
+    work_array = np.arange(len(dataset))
 
     num_process = kwargs['num_process']
     batch_size = len(work_array) // num_process
@@ -335,7 +335,7 @@ def create_groundtruth_database(
                     }
 
     group_counter = 0
-    for dbinfo in results:
+    for dbinfo in tqdm(results, desc="reindexing group_id"):
 
         for v_ls in dbinfo.values():
             for v in v_ls:
