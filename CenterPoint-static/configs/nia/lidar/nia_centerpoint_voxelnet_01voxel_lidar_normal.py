@@ -174,8 +174,8 @@ val_anno = data_root + "/infos_test_normal_filter_True_lidar.pkl"
 test_anno = None
 
 data = dict(
-    samples_per_gpu=3,
-    workers_per_gpu=3
+    samples_per_gpu=10,
+    workers_per_gpu=8
 ,
     train=dict(
         type=dataset_type,
