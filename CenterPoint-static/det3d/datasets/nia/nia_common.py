@@ -756,16 +756,16 @@ def _fill_infos(root_path, frames, sensor='lidar'):
 
         infos.append(info)
 
-        if sensor == 'radar':
-            rm_infos = infos.copy()
-            for info in infos:
-                if info['gt_boxes'].shape[0] == 0:
-                    rm_infos.remove(info)
+    if sensor == 'radar':
+        rm_infos = infos.copy()
+        for info in infos:
+            if info['gt_boxes'].shape[0] == 0:
+                rm_infos.remove(info)
 
-            return rm_infos
+        return rm_infos
 
-        else:
-            return infos
+    else:
+        return infos
 
 
 def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=None):
