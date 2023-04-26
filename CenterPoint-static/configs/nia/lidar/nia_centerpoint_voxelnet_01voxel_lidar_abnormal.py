@@ -175,7 +175,11 @@ test_pipeline = [
 
 data = dict(
     samples_per_gpu=10,
+<<<<<<< HEAD
     workers_per_gpu=2
+=======
+    workers_per_gpu=8
+>>>>>>> 8acba71d3085837c17c4a7a0f1e238300a46b854
 ,
     train=dict(
         type=dataset_type,
