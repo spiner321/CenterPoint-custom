@@ -43,7 +43,7 @@ def read_file(path, tries=2, num_point_feature=4, virtual=False, calib=''):
             try:
                 pts = open3d.t.io.read_point_cloud(path)
                 points = np.concatenate((pts.point['positions'].numpy(), pts.point['intensity'].numpy()), axis=1)
-                points = points[np.where((points[:, 0]>=0) & (points[:, 0]<=80) & (points[:, 1]>=-40) & (points[:, 1]<=40))] # pcd 범위 지정
+                # points = points[np.where((points[:, 0]>=0) & (points[:, 0]<=80) & (points[:, 1]>=-40) & (points[:, 1]<=40))] # pcd 범위 지정
             except:
                 print(f"error path found: {path}")
         elif 'Radar' in path:
@@ -62,8 +62,9 @@ def read_file(path, tries=2, num_point_feature=4, virtual=False, calib=''):
             intensity = intensity * 0.01
             positions = np.concatenate((positions, np.ones((1, positions.shape[1]))))
             positions = np.matmul(R2L_transform, positions).transpose(1, 0)
-            points = np.concatenate((positions, intensity), axis=1).astype(np.float32)
-            points = points[np.where((points[:, 0]>=0) & (points[:, 0]<=80) & (points[:, 1]>=-40) & (points[:, 1]<=40))] # pcd 범위 지정
+            points = np.concatenate((positions, intensity, curvature), axis=1).astype(np.float32)
+        
+        points = points[np.where((points[:, 0]>=0) & (points[:, 0]<=80) & (points[:, 1]>=-40) & (points[:, 1]<=40))] # pcd 범위 지정
 
 
         # if 'Radar' in path:

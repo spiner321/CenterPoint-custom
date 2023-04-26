@@ -98,7 +98,11 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/lidar_allsub"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/lidar_1stsub"
+train_anno = data_root + "/infos_train_filter_True_lidar.pkl"
+val_anno = data_root + "/infos_val_filter_True_lidar.pkl"
+# val_anno = "/workspace/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_lidar.pkl" # extreme
+test_anno = None
 
 db_sampler = dict(
     type="GT-AUG",
@@ -168,13 +172,10 @@ test_pipeline = [
     dict(type="Reformat"),
 ]
 
-train_anno = data_root + "/infos_train_filter_True_lidar.pkl"
-val_anno = data_root + "/infos_val_filter_True_lidar.pkl"
-# val_anno = "/workspace/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_lidar.pkl" # extreme
-test_anno = None
+
 
 data = dict(
-    samples_per_gpu=6,
+    samples_per_gpu=8,
     workers_per_gpu=8
 ,
     train=dict(
@@ -229,13 +230,15 @@ log_config = dict(
 )
 # yapf:enable
 # runtime settings
-total_epochs = 1
+total_epochs = 100
 device_ids = range(8)
 dist_params = dict(backend="nccl", init_method="env://")
 log_level = "INFO"
 work_dir = './work_dirs/{}/'.format(__file__[__file__.rfind('/') + 1:-3])
-checkpoint_dir = work_dir + 'latest.pth'
+# checkpoint_dir = '/data/kimgh/CenterPoint-custom/CenterPoint-static/weights/nia_centerpoint_static_lidar.pth'
+checkpoint_dir = None
 sensor = 'lidar'
 load_from = None 
+# load_from = '/data/kimgh/CenterPoint-custom/CenterPoint-static/weights/nia_centerpoint_static_lidar.pth'
 resume_from = None
 workflow = [('train', 1)]

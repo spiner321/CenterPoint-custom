@@ -42,7 +42,7 @@ model = dict(
     pretrained=None,
     reader=dict(
         type="VoxelFeatureExtractorV3",
-        num_input_features=4,
+        num_input_features=5,
     ),
     backbone=dict(
         type="SpMiddleResNetFHD", num_input_features=4, ds_factor=8

@@ -42,7 +42,7 @@ model = dict(
     pretrained=None,
     reader=dict(
         type="VoxelFeatureExtractorV3",
-        num_input_features=4,
+        num_input_features=5,
     ),
     backbone=dict(
         type="SpMiddleResNetFHD", num_input_features=4, ds_factor=8
@@ -175,8 +175,8 @@ test_pipeline = [
 
 
 data = dict(
-    samples_per_gpu=4,
-    workers_per_gpu=8
+    samples_per_gpu=16,
+    workers_per_gpu=2
 ,
     train=dict(
         type=dataset_type,

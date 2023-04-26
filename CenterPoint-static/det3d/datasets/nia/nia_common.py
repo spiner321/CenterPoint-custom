@@ -169,6 +169,22 @@ def get_obj(path):
                 obj = pickle.load(f)
         return obj
 
+def box_select(box_list, cat): # box_list: "3d_box", cat: "category"
+    if cat=="MEDIAN_STRIP" or cat=="SOUND_BARRIER":
+        dist = []
+        for box in box_list:
+            dist.append(box["location"][0])
+        idx = dist.index(min(dist))
+        return box_list[idx]
+    elif cat=="OVERPASS":
+        width = []
+        for box in box_list:
+            width.append(box["dimension"][0])
+        idx = width.index(max(width))
+        return box_list[idx]
+    else:
+        return box_list[0]
+
 def _second_det_to_nusc_box(detection):
     box3d = detection["box3d_lidar"].detach().cpu().numpy()
     scores = detection["scores"].detach().cpu().numpy()
@@ -688,25 +704,31 @@ def _fill_infos(root_path, frames, sensor='lidar'):
         if sensor == 'radar':
             remove_idx = []
             for idx, ann in enumerate(annotations):
-                if ann['3d_box'][0]['radar_point_count'] < 3:
+                if ann['3d_box'][0]['radar_point_count'] < 5:
                     remove_idx.append(idx)
             remove_idx.reverse()
             for i in remove_idx:
                 annotations.pop(i)
 
 
-        # sub id 전부 사용
-        ref_boxes = []
-        names = []
-        for anno in annotations:
-            for box in anno['3d_box']:
-                ref_boxes.append(box)
-            name = [anno['category']]*len(anno['3d_box'])
-            names.extend(name)
+        # # sub id 전부 사용
+        # ref_boxes = []
+        # names = []
+        # # tokens = []
+        # for anno in annotations:
+        #     for box in anno['3d_box']:
+        #         ref_boxes.append(box)
+        #     name = [anno['category']]*len(anno['3d_box'])
+        #     names.extend(name)
 
-        # # sub id 첫번째만 사용
+            # token = [anno['id']]*len(anno['3d_box'])
+            # tokens.extend(token)
+
+        # sub id 첫번째만 사용
         # ref_boxes = [anno['3d_box'][0] for anno in annotations]
-        # names = np.array([anno['category'] for anno in annotations])
+        ref_boxes = [box_select(anno['3d_box'], anno['category']) for anno in annotations] # category 별로 box 선택
+        names = np.array([anno['category'] for anno in annotations])
+        tokens = np.array([anno['id'] for anno in annotations])
 
         locs = np.array([b['location'] for b in ref_boxes]).reshape(-1, 3)
         dims = np.array([b['dimension'] for b in ref_boxes]).reshape(-1, 3)
@@ -716,7 +738,6 @@ def _fill_infos(root_path, frames, sensor='lidar'):
         velocity = np.zeros_like(locs)
         if 'ETC' in names:
             names = np.where(names == 'ETC', 'construction_vehicle', names)
-        tokens = np.array([anno['id'] for anno in annotations])
         try:
             gt_boxes = np.concatenate(
                 [locs, dims, velocity[:, :2], -rots - np.pi / 2], axis=1
@@ -735,21 +756,59 @@ def _fill_infos(root_path, frames, sensor='lidar'):
 
         infos.append(info)
 
-    return infos
+        if sensor == 'radar':
+            rm_infos = infos.copy()
+            for info in infos:
+                if info['gt_boxes'].shape[0] == 0:
+                    rm_infos.remove(info)
+
+            return rm_infos
+
+        else:
+            return infos
 
 
-def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=1):
+def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=None):
     # root_path = Path(root_path)
     # normal_path = os.path.join(root_path, 'normal')
     # extreme_path = os.path.join(root_path, 'abnormal')
 
     ''' Get Scenes and divide into train/val set '''
     # train_scenes, val_scenes, test_scenes = get_available_scenes(normal_path, ratio=ratio)
-    train_frames = sorted(glob.glob(f'{root_path}/train/source/*/*/*/Lidar/*'))
-    val_frames = sorted(glob.glob(f'{root_path}/val/source/*/*/*/Lidar/*'))
+    if subsample:
+        
+        train_scenes = sorted(glob.glob(f'{root_path}/train/source/*/*/*'))
+        val_scenes = sorted(glob.glob(f'{root_path}/val/source/*/*/*'))
 
-    test_normal_frames = sorted(glob.glob(f'{root_path}/test/source/normal/*/*/Lidar/*'))
-    test_abnormal_frames = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*/Lidar/*'))
+        test_normal_scenes = sorted(glob.glob(f'{root_path}/test/source/normal/*/*'))
+        test_abnormal_scenes = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*'))
+
+        train_frames = []
+        for s in train_scenes:
+            f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
+            train_frames.extend(f)
+
+        val_frames = []
+        for s in val_scenes:
+            f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
+            val_frames.extend(f)
+
+        test_normal_frames = []
+        for s in test_normal_scenes:
+            f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
+            test_normal_frames.extend(f)
+
+        test_abnormal_frames = []
+        for s in test_abnormal_scenes:
+            f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
+            test_abnormal_frames.extend(f)
+
+    else:
+        train_frames = sorted(glob.glob(f'{root_path}/train/source/*/*/*/Lidar/*'))
+        val_frames = sorted(glob.glob(f'{root_path}/val/source/*/*/*/Lidar/*'))
+
+        test_normal_frames = sorted(glob.glob(f'{root_path}/test/source/normal/*/*/Lidar/*'))
+        test_abnormal_frames = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*/Lidar/*'))
 
     # train_frames = get_available_frames(normal_path, train_scenes, subsample=subsample)
     # val_frames = get_available_frames(normal_path, val_scenes, subsample=subsample)
