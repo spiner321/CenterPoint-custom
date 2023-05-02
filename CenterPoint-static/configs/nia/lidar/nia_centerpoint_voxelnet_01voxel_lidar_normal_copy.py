@@ -98,7 +98,7 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/etc/test"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/sample"
 
 train_anno = data_root + "/infos_train_filter_True_lidar.pkl"
 val_anno = data_root + "/infos_test_normal_filter_True_lidar.pkl"

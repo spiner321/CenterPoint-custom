@@ -1,9 +1,11 @@
 # nuScenes dev-kit.
 # Code written by Oscar Beijbom and Varun Bankiti, 2019.
 
-DETECTION_NAMES = ['car', 'truck', 'bus', 'trailer', 'construction_vehicle', 'pedestrian', 'motorcycle', 'bicycle',
-                   'traffic_cone', 'barrier', 'median_strip', 'sound_barrier', 'overpass', 'tunnel', 'street_trees',
-                   'road_sign', 'ramp_sect']
+# DETECTION_NAMES = ['car', 'truck', 'bus', 'trailer', 'construction_vehicle', 'pedestrian', 'motorcycle', 'bicycle',
+#                    'traffic_cone', 'barrier', 'median_strip', 'sound_barrier', 'overpass', 'tunnel', 'street_trees',
+#                    'road_sign', 'ramp_sect']
+
+DETECTION_NAMES = ['median_strip', 'sound_barrier', 'overpass', 'tunnel', 'street_trees', 'road_sign', 'ramp_sect']
 
 PRETTY_DETECTION_NAMES = {'car': 'Car',
                           'truck': 'Truck',
