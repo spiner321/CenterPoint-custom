@@ -42,10 +42,10 @@ model = dict(
     pretrained=None,
     reader=dict(
         type="VoxelFeatureExtractorV3",
-        num_input_features=5,
+        num_input_features=4,
     ),
     backbone=dict(
-        type="SpMiddleResNetFHD", num_input_features=5, ds_factor=8
+        type="SpMiddleResNetFHD", num_input_features=4, ds_factor=8
     ),
     neck=dict(
         type="RPN",
@@ -98,13 +98,12 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/selectsub"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/etc/test"
 
-train_anno = data_root + "/infos_train_filter_True_radar.pkl"
-val_anno = data_root + "/infos_test_abnormal_filter_True_radar.pkl"
+train_anno = data_root + "/infos_train_filter_True_lidar.pkl"
+val_anno = data_root + "/infos_test_normal_filter_True_lidar.pkl"
 # val_anno = "/workspace/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_lidar.pkl" # extreme
 test_anno = None
-
 
 db_sampler = dict(
     type="GT-AUG",
@@ -176,8 +175,8 @@ test_pipeline = [
 
 
 data = dict(
-    samples_per_gpu=32,
-    workers_per_gpu=6
+    samples_per_gpu=16,
+    workers_per_gpu=8
 ,
     train=dict(
         type=dataset_type,

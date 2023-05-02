@@ -45,7 +45,7 @@ model = dict(
         num_input_features=5,
     ),
     backbone=dict(
-        type="SpMiddleResNetFHD", num_input_features=4, ds_factor=8
+        type="SpMiddleResNetFHD", num_input_features=5, ds_factor=8
     ),
     neck=dict(
         type="RPN",
@@ -98,7 +98,7 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/radar_allsub"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/selectsub"
 train_anno = data_root + "/infos_train_filter_True_radar.pkl"
 val_anno = data_root + "/infos_test_normal_filter_True_radar.pkl"
 # val_anno = "/workspace/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_lidar.pkl" # extreme
@@ -175,12 +175,8 @@ test_pipeline = [
 
 
 data = dict(
-    samples_per_gpu=16,
-<<<<<<< HEAD
-    workers_per_gpu=2
-=======
-    workers_per_gpu=8
->>>>>>> 8acba71d3085837c17c4a7a0f1e238300a46b854
+    samples_per_gpu=32,
+    workers_per_gpu=6
 ,
     train=dict(
         type=dataset_type,

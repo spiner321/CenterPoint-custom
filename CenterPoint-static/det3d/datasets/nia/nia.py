@@ -29,7 +29,7 @@ from det3d.datasets.registry import DATASETS
 @DATASETS.register_module
 class NIADataset(PointCloudDataset):
     # NumPointFeatures = 5 # x, y, z, intensity, ring_index
-    NumPointFeatures = 4 # x, y, z, intensity
+    # NumPointFeatures = 4 # x, y, z, intensity
 
     def __init__(
         self,
@@ -64,7 +64,11 @@ class NIADataset(PointCloudDataset):
         if not hasattr(self, "_nusc_infos"):
             self.load_infos(self._info_path)
 
-        self._num_point_features = NIADataset.NumPointFeatures
+        if 'lidar' in info_path:
+            self._num_point_features = 4
+        elif 'radar' in info_path:
+            self._num_point_features = 5
+        # self._num_point_features = NIADataset.NumPointFeatures
         self._name_mapping = general_to_detection
 
         self.virtual = kwargs.get('virtual', False)

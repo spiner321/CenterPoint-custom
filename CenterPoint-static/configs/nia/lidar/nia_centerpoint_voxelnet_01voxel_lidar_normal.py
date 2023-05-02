@@ -98,7 +98,7 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/lidar_1stsub"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/selectsub"
 
 train_anno = data_root + "/infos_train_filter_True_lidar.pkl"
 val_anno = data_root + "/infos_test_normal_filter_True_lidar.pkl"
@@ -175,12 +175,8 @@ test_pipeline = [
 
 
 data = dict(
-    samples_per_gpu=10,
-<<<<<<< HEAD
-    workers_per_gpu=2
-=======
+    samples_per_gpu=16,
     workers_per_gpu=8
->>>>>>> 8acba71d3085837c17c4a7a0f1e238300a46b854
 ,
     train=dict(
         type=dataset_type,
