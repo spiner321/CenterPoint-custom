@@ -777,7 +777,7 @@ def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=None
     # train_scenes, val_scenes, test_scenes = get_available_scenes(normal_path, ratio=ratio)
     if subsample:
         
-        train_scenes = sorted(glob.glob(f'{root_path}/train/source/normal/*/*'))
+        train_scenes = sorted(glob.glob(f'{root_path}/train/source/*/*/*'))
         val_scenes = sorted(glob.glob(f'{root_path}/val/source/*/*/*'))
 
         test_normal_scenes = sorted(glob.glob(f'{root_path}/test/source/normal/*/*'))
@@ -785,7 +785,7 @@ def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=None
 
         train_frames = []
         for s in train_scenes:
-            f = sorted(glob.glob(f'{s}/Lidar/*'))[10::subsample]
+            f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
             train_frames.extend(f)
 
         val_frames = []

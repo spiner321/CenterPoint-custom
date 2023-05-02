@@ -114,6 +114,9 @@ class Preprocess(object):
                     gt_boxes_mask = np.concatenate(
                         [gt_boxes_mask, sampled_gt_masks], axis=0
                     )
+                    # print(sampled_points)
+                    # print(points)
+
                     points = np.concatenate([sampled_points, points], axis=0)
 
             _dict_select(gt_dict, gt_boxes_mask)
