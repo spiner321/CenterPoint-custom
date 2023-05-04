@@ -176,6 +176,12 @@ def box_select(box_list, cat): # box_list: "3d_box", cat: "category"
             dist.append(box["location"][0])
         idx = dist.index(min(dist))
         return box_list[idx]
+    elif cat=='RAMP_SECT':
+        dist = []
+        for box in box_list:
+            dist.append(box["location"][1])
+        idx = dist.index(min(dist))
+        return box_list[idx]
     elif cat=="OVERPASS" or cat=="TUNNEL":
         width = []
         for box in box_list:
@@ -701,15 +707,31 @@ def _fill_infos(root_path, frames, sensor='lidar'):
         }
 
         annotations = ref_obj['annotation']
+
+        # radar point count 기준으로 제거
         if sensor == 'radar':
             remove_idx = []
             for idx, ann in enumerate(annotations):
-                if ann['3d_box'][0]['radar_point_count'] < 5:
-                    remove_idx.append(idx)
-            remove_idx.reverse()
+                for i in range(len(ann['3d_box'])):
+                    if ann['3d_box'][i]['radar_point_count'] < 15:
+                        remove_idx.append(idx)
+            remove_idx = list(set(remove_idx))
+            remove_idx.sort(reverse=True)
             for i in remove_idx:
                 annotations.pop(i)
-
+        
+        # annotations에서 MEDIAN_STRIP의 길이가 42 이상인 것만 사용
+        remove_idx = []
+        for idx, ann in enumerate(annotations):
+            if ann['category'] == 'MEDIAN_STRIP' or ann['category'] == 'SOUND_BARRIER':
+                for i in range(len(ann['3d_box'])):
+                    if ann['3d_box'][i]['dimension'][2] < 42:
+                        remove_idx.append(idx)
+        remove_idx = list(set(remove_idx))
+        remove_idx.sort(reverse=True)
+        for i in remove_idx:
+            annotations.pop(i)
+    
 
         # # sub id 전부 사용
         # ref_boxes = []
@@ -756,16 +778,25 @@ def _fill_infos(root_path, frames, sensor='lidar'):
 
         infos.append(info)
 
-    if sensor == 'radar':
-        rm_infos = infos.copy()
-        for info in infos:
-            if info['gt_boxes'].shape[0] == 0:
-                rm_infos.remove(info)
+    # 빈 gt_boxes 제거
+    rm_infos = infos.copy()
+    for info in infos:
+        if info['gt_boxes'].shape[0] == 0:
+            rm_infos.remove(info)
 
-        return rm_infos
+    return rm_infos
 
-    else:
-        return infos
+    # sensor가 radar일 경우에만 빈 gt_boxes 제거
+    # if sensor == 'radar':
+    #     rm_infos = infos.copy()
+    #     for info in infos:
+    #         if info['gt_boxes'].shape[0] == 0:
+    #             rm_infos.remove(info)
+
+    #     return rm_infos
+
+    # else:
+    #     return infos
 
 
 def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=None):
@@ -785,7 +816,7 @@ def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=None
 
         train_frames = []
         for s in train_scenes:
-            f = sorted(glob.glob(f'{s}/Lidar/*'))[10::subsample]
+            f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
             train_frames.extend(f)
 
         val_frames = []

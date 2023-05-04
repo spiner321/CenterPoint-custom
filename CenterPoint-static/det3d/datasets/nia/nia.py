@@ -64,9 +64,9 @@ class NIADataset(PointCloudDataset):
         if not hasattr(self, "_nusc_infos"):
             self.load_infos(self._info_path)
 
-        if 'lidar' in info_path:
+        if 'lidar' in str(info_path):
             self._num_point_features = 4
-        elif 'radar' in info_path:
+        elif 'radar' in str(info_path):
             self._num_point_features = 5
         # self._num_point_features = NIADataset.NumPointFeatures
         self._name_mapping = general_to_detection
