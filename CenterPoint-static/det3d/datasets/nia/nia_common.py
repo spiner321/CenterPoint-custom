@@ -175,6 +175,17 @@ def box_select(box_list, cat): # box_list: "3d_box", cat: "category"
         for box in box_list:
             dist.append(box["location"][0])
         idx = dist.index(min(dist))
+        # 중앙분리대, 방음벽의 길이를 15m로 고정
+        new_x = box_list[idx]['location'][0] - box_list[idx]['dimension'][2]/2 + 7.5
+        new_l = 15
+        box_list[idx]['location'][0] = new_x
+        box_list[idx]['dimension'][2] = new_l
+        return box_list[idx]
+    elif cat=='RAMP_SECT':
+        dist = []
+        for box in box_list:
+            dist.append(box["location"][1])
+        idx = dist.index(min(dist))
         return box_list[idx]
     elif cat=="OVERPASS" or cat=="TUNNEL":
         width = []
@@ -701,15 +712,31 @@ def _fill_infos(root_path, frames, sensor='lidar'):
         }
 
         annotations = ref_obj['annotation']
+
+        # radar point count 기준으로 제거
         if sensor == 'radar':
             remove_idx = []
             for idx, ann in enumerate(annotations):
-                if ann['3d_box'][0]['radar_point_count'] < 5:
-                    remove_idx.append(idx)
-            remove_idx.reverse()
+                for i in range(len(ann['3d_box'])):
+                    if ann['3d_box'][i]['radar_point_count'] < 15:
+                        remove_idx.append(idx)
+            remove_idx = list(set(remove_idx))
+            remove_idx.sort(reverse=True)
             for i in remove_idx:
                 annotations.pop(i)
-
+        
+        # # annotations에서 MEDIAN_STRIP의 길이가 42 이상인 것만 사용
+        # remove_idx = []
+        # for idx, ann in enumerate(annotations):
+        #     if ann['category'] == 'MEDIAN_STRIP' or ann['category'] == 'SOUND_BARRIER':
+        #         for i in range(len(ann['3d_box'])):
+        #             if ann['3d_box'][i]['location'][0] < 21:
+        #                 remove_idx.append(idx)
+        # remove_idx = list(set(remove_idx))
+        # remove_idx.sort(reverse=True)
+        # for i in remove_idx:
+        #     annotations.pop(i)
+    
 
         # # sub id 전부 사용
         # ref_boxes = []
@@ -756,16 +783,25 @@ def _fill_infos(root_path, frames, sensor='lidar'):
 
         infos.append(info)
 
-    if sensor == 'radar':
-        rm_infos = infos.copy()
-        for info in infos:
-            if info['gt_boxes'].shape[0] == 0:
-                rm_infos.remove(info)
+    # 빈 gt_boxes 제거
+    rm_infos = infos.copy()
+    for info in infos:
+        if info['gt_boxes'].shape[0] == 0:
+            rm_infos.remove(info)
 
-        return rm_infos
+    return rm_infos
 
-    else:
-        return infos
+    # sensor가 radar일 경우에만 빈 gt_boxes 제거
+    # if sensor == 'radar':
+    #     rm_infos = infos.copy()
+    #     for info in infos:
+    #         if info['gt_boxes'].shape[0] == 0:
+    #             rm_infos.remove(info)
+
+    #     return rm_infos
+
+    # else:
+    #     return infos
 
 
 def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=None):
@@ -780,12 +816,12 @@ def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=None
         train_scenes = sorted(glob.glob(f'{root_path}/train/source/normal/*/*'))
         val_scenes = sorted(glob.glob(f'{root_path}/val/source/*/*/*'))
 
-        test_normal_scenes = sorted(glob.glob(f'{root_path}/test/source/normal/*/*'))
-        test_abnormal_scenes = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*'))
+        # test_normal_scenes = sorted(glob.glob(f'{root_path}/test/source/normal/*/*'))
+        # test_abnormal_scenes = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*'))
 
         train_frames = []
         for s in train_scenes:
-            f = sorted(glob.glob(f'{s}/Lidar/*'))[10::subsample]
+            f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
             train_frames.extend(f)
 
         val_frames = []
@@ -793,25 +829,26 @@ def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=None
             f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
             val_frames.extend(f)
 
-        test_normal_frames = []
-        for s in test_normal_scenes:
-            f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
-            test_normal_frames.extend(f)
+        # test_normal_frames = []
+        # for s in test_normal_scenes:
+        #     f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
+        #     test_normal_frames.extend(f)
 
-        test_abnormal_frames = []
-        for s in test_abnormal_scenes:
-            f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
-            test_abnormal_frames.extend(f)
+        # test_abnormal_frames = []
+        # for s in test_abnormal_scenes:
+        #     f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
+        #     test_abnormal_frames.extend(f)
 
     else:
         train_frames = sorted(glob.glob(f'{root_path}/train/source/*/*/*/Lidar/*'))
         val_frames = sorted(glob.glob(f'{root_path}/val/source/*/*/*/Lidar/*'))
 
-        test_normal_frames = sorted(glob.glob(f'{root_path}/test/source/normal/*/*/Lidar/*'))
-        test_abnormal_frames = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*/Lidar/*'))
+        # test_normal_frames = sorted(glob.glob(f'{root_path}/test/source/normal/*/*/Lidar/*'))
+        # test_abnormal_frames = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*/Lidar/*'))
 
-    # train_frames = get_available_frames(normal_path, train_scenes, subsample=subsample)
-    # val_frames = get_available_frames(normal_path, val_scenes, subsample=subsample)
+    test_normal_frames = sorted(glob.glob(f'{root_path}/test/source/normal/*/*/Lidar/*'))
+    test_abnormal_frames = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*/Lidar/*'))
+
     print("exist train frames:", len(train_frames), \
           "exist val frames:", len(val_frames), \
           "exist test_nomal frames:", len(test_normal_frames), \
