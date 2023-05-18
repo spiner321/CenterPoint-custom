@@ -98,7 +98,7 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/selectsub2"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/selectsub3"
 
 train_anno = data_root + "/infos_train_filter_True_radar.pkl"
 val_anno = data_root + "/infos_val_filter_True_radar.pkl"
@@ -175,8 +175,8 @@ test_pipeline = [
 
 
 data = dict(
-    samples_per_gpu=16,
-    workers_per_gpu=6
+    samples_per_gpu=24,
+    workers_per_gpu=8
 ,
     train=dict(
         type=dataset_type,

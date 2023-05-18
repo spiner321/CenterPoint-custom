@@ -718,7 +718,7 @@ def _fill_infos(root_path, frames, sensor='lidar'):
             remove_idx = []
             for idx, ann in enumerate(annotations):
                 for i in range(len(ann['3d_box'])):
-                    if ann['3d_box'][i]['radar_point_count'] < 15:
+                    if ann['3d_box'][i]['radar_point_count'] < 10:
                         remove_idx.append(idx)
             remove_idx = list(set(remove_idx))
             remove_idx.sort(reverse=True)
@@ -813,11 +813,11 @@ def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=None
     # train_scenes, val_scenes, test_scenes = get_available_scenes(normal_path, ratio=ratio)
     if subsample:
         
-        train_scenes = sorted(glob.glob(f'{root_path}/train/source/normal/*/*'))
-        val_scenes = sorted(glob.glob(f'{root_path}/val/source/*/*/*'))
+        # train_scenes = sorted(glob.glob(f'{root_path}/train/source/normal/*/*'))
+        # val_scenes = sorted(glob.glob(f'{root_path}/val/source/*/*/*'))
 
-        # test_normal_scenes = sorted(glob.glob(f'{root_path}/test/source/normal/*/*'))
-        # test_abnormal_scenes = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*'))
+        test_normal_scenes = sorted(glob.glob(f'{root_path}/test/source/normal/*/*'))
+        test_abnormal_scenes = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*'))
 
         train_frames = []
         for s in train_scenes:
@@ -829,25 +829,25 @@ def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=None
             f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
             val_frames.extend(f)
 
-        # test_normal_frames = []
-        # for s in test_normal_scenes:
-        #     f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
-        #     test_normal_frames.extend(f)
+        test_normal_frames = []
+        for s in test_normal_scenes:
+            f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
+            test_normal_frames.extend(f)
 
-        # test_abnormal_frames = []
-        # for s in test_abnormal_scenes:
-        #     f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
-        #     test_abnormal_frames.extend(f)
+        test_abnormal_frames = []
+        for s in test_abnormal_scenes:
+            f = sorted(glob.glob(f'{s}/Lidar/*'))[5::subsample]
+            test_abnormal_frames.extend(f)
 
     else:
         train_frames = sorted(glob.glob(f'{root_path}/train/source/*/*/*/Lidar/*'))
         val_frames = sorted(glob.glob(f'{root_path}/val/source/*/*/*/Lidar/*'))
 
-        # test_normal_frames = sorted(glob.glob(f'{root_path}/test/source/normal/*/*/Lidar/*'))
-        # test_abnormal_frames = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*/Lidar/*'))
+        test_normal_frames = sorted(glob.glob(f'{root_path}/test/source/normal/*/*/Lidar/*'))
+        test_abnormal_frames = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*/Lidar/*'))
 
-    test_normal_frames = sorted(glob.glob(f'{root_path}/test/source/normal/*/*/Lidar/*'))
-    test_abnormal_frames = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*/Lidar/*'))
+    # test_normal_frames = sorted(glob.glob(f'{root_path}/test/source/normal/*/*/Lidar/*'))
+    # test_abnormal_frames = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*/Lidar/*'))
 
     print("exist train frames:", len(train_frames), \
           "exist val frames:", len(val_frames), \
