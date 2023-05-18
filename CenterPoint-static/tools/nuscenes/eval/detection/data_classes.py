@@ -6,7 +6,8 @@ from typing import List, Dict, Tuple
 
 import numpy as np
 
-from nuscenes.eval.common.data_classes import MetricData, EvalBox
+# from nuscenes.eval.common.data_classes import MetricData, EvalBox
+from ..common.data_classes import MetricData, EvalBox
 from nuscenes.eval.common.utils import center_distance
 from .constants import DETECTION_NAMES, ATTRIBUTE_NAMES, TP_METRICS
 

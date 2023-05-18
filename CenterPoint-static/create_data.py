@@ -34,15 +34,15 @@ def waymo_data_prep(root_path, split, nsweeps=1):
 
 def nia_data_prep(root_path, nsweeps=1, sensor='lidar', filter_zero=True, virtual=False, subsample=None, num_process=4):
     nia_ds.create_nia_infos(root_path, sensor=sensor, subsample=subsample)
-    # create_groundtruth_database(
-    #     "NIA",
-    #     root_path,
-    #     Path(root_path) / "infos_train_filter_{}_{}.pkl".format(filter_zero, sensor),
-    #     nsweeps=nsweeps,
-    #     virtual=virtual,
-    #     sensor=sensor,
-    #     num_process=num_process,
-    # )
+    create_groundtruth_database(
+        "NIA",
+        root_path,
+        Path(root_path) / "infos_train_filter_{}_{}.pkl".format(filter_zero, sensor),
+        nsweeps=nsweeps,
+        virtual=virtual,
+        sensor=sensor,
+        num_process=num_process,
+    )
     # info_distribution(root_path, Path(root_path) / "infos_val_filter_True_{}.pkl".format(sensor), nsweeps=nsweeps)
     # info_distribution(root_path, Path(root_path) / "infos_extreme_val_filter_True_{}.pkl".format(sensor), nsweeps=nsweeps)
 

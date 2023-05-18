@@ -98,7 +98,7 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/selectsub2"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/selectsub3"
 
 train_anno = data_root + "/infos_train_filter_True_radar.pkl"
 val_anno = data_root + "/infos_test_abnormal_filter_True_radar.pkl"
@@ -109,7 +109,7 @@ test_anno = None
 db_sampler = dict(
     type="GT-AUG",
     enable=False,
-    db_info_path= data_root + "/dbinfos_train_lidar.pkl",
+    db_info_path= data_root + "/dbinfos_train_radar.pkl",
     sample_groups=[
         dict(median_strip=3),
         dict(road_sign=3),
@@ -176,8 +176,8 @@ test_pipeline = [
 
 
 data = dict(
-    samples_per_gpu=32,
-    workers_per_gpu=6
+    samples_per_gpu=4,
+    workers_per_gpu=8
 ,
     train=dict(
         type=dataset_type,

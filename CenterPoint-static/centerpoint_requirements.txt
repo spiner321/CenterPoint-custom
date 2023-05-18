@@ -20,7 +20,7 @@ matplotlib
 motmetrics<=1.1.3
 numpy
 pandas>=0.24
-Pillow<=6.2.1  # Latest Pillow is incompatible with current torchvision, https://github.com/pytorch/vision/issues/1712
+Pillow
 pyquaternion>=0.9.5
 scikit-learn
 Shapely
@@ -28,3 +28,5 @@ tqdm
 pyyaml
 requests
 nuscenes-devkit==1.0.5
+spconv-cu117
+torch
