@@ -181,7 +181,7 @@ def main():
     from nuscenes.eval.detection.evaluate import NuScenesEval
     nusc = NuScenes(version="v1.0-trainval", dataroot=args.data_root, verbose=True)
     cfg = config_factory("cvpr_2019")
-    nusc_eval = NuScenesEval(
+    nusc_eval = NuScenes(
         nusc,
         config=cfg,
         result_path=os.path.join(args.work_dir, 'result.json'),
