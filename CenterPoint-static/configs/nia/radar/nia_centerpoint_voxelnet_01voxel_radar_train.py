@@ -98,7 +98,7 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/selectsub3"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/selectsub4"
 
 train_anno = data_root + "/infos_train_filter_True_radar.pkl"
 val_anno = data_root + "/infos_val_filter_True_radar.pkl"
@@ -175,8 +175,8 @@ test_pipeline = [
 
 
 data = dict(
-    samples_per_gpu=24,
-    workers_per_gpu=8
+    samples_per_gpu=48,
+    workers_per_gpu=4
 ,
     train=dict(
         type=dataset_type,
@@ -230,7 +230,7 @@ log_config = dict(
 )
 # yapf:enable
 # runtime settings
-total_epochs = 100
+total_epochs = 200
 device_ids = range(8)
 dist_params = dict(backend="nccl", init_method="env://")
 log_level = "INFO"

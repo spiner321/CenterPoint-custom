@@ -718,7 +718,7 @@ def _fill_infos(root_path, frames, sensor='lidar'):
             remove_idx = []
             for idx, ann in enumerate(annotations):
                 for i in range(len(ann['3d_box'])):
-                    if ann['3d_box'][i]['radar_point_count'] < 10:
+                    if ann['3d_box'][i]['radar_point_count'] < 30:
                         remove_idx.append(idx)
             remove_idx = list(set(remove_idx))
             remove_idx.sort(reverse=True)

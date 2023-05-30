@@ -28,5 +28,4 @@ tqdm
 pyyaml
 requests
 nuscenes-devkit==1.0.5
-spconv-cu117
-torch
+spconv-cu113

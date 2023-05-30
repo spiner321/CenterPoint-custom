@@ -292,6 +292,11 @@ def create_groundtruth_database(
 
     num_process = kwargs['num_process']
     batch_size = len(work_array) // num_process
+    if batch_size == 0:
+        num_process = len(work_array)
+        batch_size = len(work_array) // num_process
+    elif batch_size == 1:
+        batch_size = len(work_array) // num_process + 1
     start_end_idx = [{"start": i * batch_size, "end": (i + 1) * batch_size} for i in range(num_process+1)]
 
     results = []
