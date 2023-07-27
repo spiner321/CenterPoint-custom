@@ -98,7 +98,7 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/selectsub4"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/selectsub7"
 train_anno = data_root + "/infos_train_filter_True_radar.pkl"
 val_anno = data_root + "/infos_test_normal_filter_True_radar.pkl"
 # val_anno = "/workspace/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_lidar.pkl" # extreme
@@ -236,7 +236,6 @@ dist_params = dict(backend="nccl", init_method="env://")
 log_level = "INFO"
 work_dir = './work_dirs/{}/'.format(__file__[__file__.rfind('/') + 1:-3])
 checkpoint_dir = work_dir + 'latest.pth'
-sensor = 'lidar'
 load_from = None 
 resume_from = None
 workflow = [('train', 1)]
