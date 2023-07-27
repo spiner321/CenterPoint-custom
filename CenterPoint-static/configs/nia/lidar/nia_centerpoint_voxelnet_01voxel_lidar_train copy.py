@@ -42,10 +42,10 @@ model = dict(
     pretrained=None,
     reader=dict(
         type="VoxelFeatureExtractorV3",
-        num_input_features=5,
+        num_input_features=4,
     ),
     backbone=dict(
-        type="SpMiddleResNetFHD", num_input_features=5, ds_factor=8
+        type="SpMiddleResNetFHD", num_input_features=4, ds_factor=8
     ),
     neck=dict(
         type="RPN",
@@ -98,18 +98,16 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/selectsub7"
-
-train_anno = data_root + "/infos_train_filter_True_radar.pkl"
-val_anno = data_root + "/infos_test_abnormal_filter_True_radar.pkl"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/samples"
+train_anno = data_root + "/infos_train_filter_True_lidar.pkl"
+val_anno = data_root + "/infos_val_filter_True_lidar.pkl"
 # val_anno = "/workspace/CenterPoint-NIA/data/nia/infos_extreme_val_filter_True_lidar.pkl" # extreme
 test_anno = None
-
 
 db_sampler = dict(
     type="GT-AUG",
     enable=False,
-    db_info_path= data_root + "/dbinfos_train_radar.pkl",
+    db_info_path= data_root + "/dbinfos_train_lidar.pkl",
     sample_groups=[
         dict(median_strip=3),
         dict(road_sign=3),
@@ -175,9 +173,12 @@ test_pipeline = [
 ]
 
 
+
 data = dict(
+    # samples_per_gpu=32,
+    # workers_per_gpu=4
     samples_per_gpu=8,
-    workers_per_gpu=4
+    workers_per_gpu=2
 ,
     train=dict(
         type=dataset_type,
@@ -231,12 +232,15 @@ log_config = dict(
 )
 # yapf:enable
 # runtime settings
-total_epochs = 1
+total_epochs = 1000
 device_ids = range(8)
 dist_params = dict(backend="nccl", init_method="env://")
 log_level = "INFO"
 work_dir = './work_dirs/{}/'.format(__file__[__file__.rfind('/') + 1:-3])
-checkpoint_dir = work_dir + 'latest.pth'
+# checkpoint_dir = '/data/kimgh/CenterPoint-custom/CenterPoint-static/weights/nia_centerpoint_static_lidar.pth'
+checkpoint_dir = None
+sensor = 'lidar'
 load_from = None 
+# load_from = '/data/kimgh/CenterPoint-custom/CenterPoint-static/weights/nia_centerpoint_static_lidar.pth'
 resume_from = None
 workflow = [('train', 1)]

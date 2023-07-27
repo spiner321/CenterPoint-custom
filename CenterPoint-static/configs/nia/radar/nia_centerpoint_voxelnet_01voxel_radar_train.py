@@ -98,7 +98,7 @@ test_cfg = dict(
 # dataset settings
 dataset_type = "NIADataset"
 nsweeps = 1
-data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/selectsub4"
+data_root = "/data/kimgh/CenterPoint-custom/CenterPoint-static/data/selectsub5"
 
 train_anno = data_root + "/infos_train_filter_True_radar.pkl"
 val_anno = data_root + "/infos_val_filter_True_radar.pkl"
@@ -176,6 +176,7 @@ test_pipeline = [
 
 data = dict(
     samples_per_gpu=48,
+    # samples_per_gpu=8,
     workers_per_gpu=4
 ,
     train=dict(
@@ -230,13 +231,14 @@ log_config = dict(
 )
 # yapf:enable
 # runtime settings
-total_epochs = 200
+total_epochs = 300
 device_ids = range(8)
 dist_params = dict(backend="nccl", init_method="env://")
 log_level = "INFO"
 work_dir = './work_dirs/{}/'.format(__file__[__file__.rfind('/') + 1:-3])
 checkpoint_dir = work_dir + 'latest.pth'
-sensor = 'lidar'
-load_from = None 
+# checkpoint_dir = '/data/kimgh/CenterPoint-custom/CenterPoint-static/result/road_sign/train/radar/latest.pth'
+# load_from = None 
+load_from = '/data/kimgh/CenterPoint-custom/CenterPoint-static/result/selectsub5/train/radar/epoch_200.pth'
 resume_from = None
 workflow = [('train', 1)]

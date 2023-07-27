@@ -718,12 +718,23 @@ def _fill_infos(root_path, frames, sensor='lidar'):
             remove_idx = []
             for idx, ann in enumerate(annotations):
                 for i in range(len(ann['3d_box'])):
-                    if ann['3d_box'][i]['radar_point_count'] < 30:
+                    if ann['3d_box'][i]['radar_point_count'] < 5:
                         remove_idx.append(idx)
-            remove_idx = list(set(remove_idx))
-            remove_idx.sort(reverse=True)
-            for i in remove_idx:
-                annotations.pop(i)
+            # remove_idx = list(set(remove_idx))
+            # remove_idx.sort(reverse=True)
+            # for i in remove_idx:
+            #     annotations.pop(i)
+            annotations = np.delete(annotations, remove_idx, axis=0).tolist()
+
+        # # annotations에서 사용할 class 선택
+        # choice_idx = []
+        # for idx, ann in enumerate(annotations):
+        #     if ann['category'] == 'MEDIAN_STRIP' or \
+        #         ann['category'] == 'SOUND_BARRIER' or \
+        #         ann['category'] == 'TUNNEL' or \
+        #         ann['category'] == 'STREET_TREES':
+        #         choice_idx.append(idx)
+        # annotations = np.asarray(annotations)[choice_idx].tolist()
         
         # # annotations에서 MEDIAN_STRIP의 길이가 42 이상인 것만 사용
         # remove_idx = []
@@ -804,7 +815,7 @@ def _fill_infos(root_path, frames, sensor='lidar'):
     #     return infos
 
 
-def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=None):
+def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=False):
     # root_path = Path(root_path)
     # normal_path = os.path.join(root_path, 'normal')
     # extreme_path = os.path.join(root_path, 'abnormal')
@@ -813,8 +824,8 @@ def create_nia_infos(root_path, sensor='lidar', filter_zero=True, subsample=None
     # train_scenes, val_scenes, test_scenes = get_available_scenes(normal_path, ratio=ratio)
     if subsample:
         
-        # train_scenes = sorted(glob.glob(f'{root_path}/train/source/normal/*/*'))
-        # val_scenes = sorted(glob.glob(f'{root_path}/val/source/*/*/*'))
+        train_scenes = sorted(glob.glob(f'{root_path}/train/source/normal/*/*'))
+        val_scenes = sorted(glob.glob(f'{root_path}/val/source/*/*/*'))
 
         test_normal_scenes = sorted(glob.glob(f'{root_path}/test/source/normal/*/*'))
         test_abnormal_scenes = sorted(glob.glob(f'{root_path}/test/source/abnormal/*/*'))
